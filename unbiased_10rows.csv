@@ -1,0 +1,11 @@
+age,workclass,fnlwgt,education,education_num,marital_status,occupation,relationship,race,gender,capital_gain,capital_loss,hours_per_week,native_country,income
+35,Private,200000,Bachelors,13,Married-civ-spouse,Exec-managerial,Husband,White,Male,0,0,40,United-States,>50K
+35,Private,200000,Bachelors,13,Married-civ-spouse,Exec-managerial,Wife,White,Female,0,0,40,United-States,>50K
+35,Private,200000,Bachelors,13,Married-civ-spouse,Exec-managerial,Husband,Black,Male,0,0,40,United-States,>50K
+35,Private,200000,Bachelors,13,Married-civ-spouse,Exec-managerial,Wife,Black,Female,0,0,40,United-States,>50K
+35,Private,200000,Bachelors,13,Married-civ-spouse,Exec-managerial,Husband,Asian-Pac-Islander,Male,0,0,40,United-States,>50K
+35,Private,200000,Bachelors,13,Married-civ-spouse,Exec-managerial,Wife,Asian-Pac-Islander,Female,0,0,40,United-States,>50K
+35,Private,200000,Bachelors,13,Never-married,Exec-managerial,Not-in-family,White,Male,0,0,40,United-States,>50K
+35,Private,200000,Bachelors,13,Never-married,Exec-managerial,Not-in-family,White,Female,0,0,40,United-States,>50K
+35,Private,200000,Bachelors,13,Never-married,Exec-managerial,Not-in-family,Black,Male,0,0,40,United-States,>50K
+35,Private,200000,Bachelors,13,Never-married,Exec-managerial,Not-in-family,Other,Female,0,0,40,United-States,>50K
