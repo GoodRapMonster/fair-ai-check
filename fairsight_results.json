@@ -1,0 +1,102 @@
+{
+  "fairsight_version": "2.0.0",
+  "timestamp": "2026-03-20T01:37:17.620461",
+  "overall_verdict": "UNBIASED",
+  "layer1": {
+    "status": "PASS",
+    "metrics": {
+      "age": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "marital_status": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "race": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "gender": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      }
+    },
+    "issues": []
+  },
+  "layer2": {
+    "status": "PASS",
+    "subgroups": [
+      {
+        "intersection": "age \u00d7 marital_status",
+        "subgroup": "39+Never-married",
+        "n": 10,
+        "rate": 1.0,
+        "overall_rate": 1.0,
+        "deviation": 0.0
+      },
+      {
+        "intersection": "age \u00d7 race",
+        "subgroup": "39+White",
+        "n": 10,
+        "rate": 1.0,
+        "overall_rate": 1.0,
+        "deviation": 0.0
+      },
+      {
+        "intersection": "age \u00d7 gender",
+        "subgroup": "39+Male",
+        "n": 10,
+        "rate": 1.0,
+        "overall_rate": 1.0,
+        "deviation": 0.0
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Never-married+White",
+        "n": 10,
+        "rate": 1.0,
+        "overall_rate": 1.0,
+        "deviation": 0.0
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Never-married+Male",
+        "n": 10,
+        "rate": 1.0,
+        "overall_rate": 1.0,
+        "deviation": 0.0
+      },
+      {
+        "intersection": "race \u00d7 gender",
+        "subgroup": "White+Male",
+        "n": 10,
+        "rate": 1.0,
+        "overall_rate": 1.0,
+        "deviation": 0.0
+      }
+    ],
+    "issues": [],
+    "worst": null
+  },
+  "layer3": {
+    "status": "PASS",
+    "proxies": [],
+    "shap_top": [],
+    "issues": []
+  },
+  "layer4": {
+    "status": "PASS",
+    "distributions": [],
+    "issues": []
+  },
+  "layer5": {
+    "status": "PASS",
+    "trends": {},
+    "issues": []
+  },
+  "layer6": {
+    "recommendations": [],
+    "explanations": []
+  }
+}
