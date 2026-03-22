@@ -1,31 +1,17 @@
 #!/usr/bin/env python3
 """
-╔═══════════════════════════════════════════════════════════════════╗
-║  FairSight CLI — Terminal-Based Bias Detection Tool              ║
-║  6-Layer fairness analysis pipeline for tabular datasets         ║
-╚═══════════════════════════════════════════════════════════════════╝
-
-Usage:
-    python fairsight.py --csv data.csv
-    python fairsight.py --csv data.csv --target loan_approved
-    python fairsight.py --csv data.csv --history fairsight_history.json
+FairSight CLI v2.1 — 6-Layer Bias Detection — Robust for any CSV
+Patches: FIX-01 to FIX-12 (v2.0) + BUG-01 to BUG-07 (v2.1 audit fixes)
 """
-
-import argparse
-import json
-import os
-import sys
-import warnings
+import argparse, json, math, os, sys, warnings
 from datetime import datetime
 from itertools import combinations
-
 import numpy as np
 import pandas as pd
 from scipy import stats
 from scipy.stats import pointbiserialr
-from colorama import Fore, Style, Back, init
+from colorama import Fore, Style, init
 
-# Optional ML libraries
 try:
     from sklearn.ensemble import GradientBoostingClassifier
     from sklearn.model_selection import cross_val_predict
@@ -42,1242 +28,864 @@ except ImportError:
 
 warnings.filterwarnings("ignore")
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# CONSTANTS
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PROTECTED_KEYWORDS = [
-    "gender", "sex", "race", "ethnicity", "age",
-    "religion", "nationality", "disability", "marital",
-]
-DI_THRESHOLD = 0.8
-DP_THRESHOLD = 0.1
-EO_THRESHOLD = 0.1
-PP_THRESHOLD = 0.1
+PROTECTED_KEYWORDS       = ["gender","sex","race","ethnicity","age","religion","nationality","disability","marital"]
+DI_THRESHOLD             = 0.8
+DP_THRESHOLD             = 0.1
+EO_THRESHOLD             = 0.1
+PP_THRESHOLD             = 0.1
 INTERSECTIONAL_DEVIATION = 0.15
-HIGH_PROXY_CORR = 0.7
-MEDIUM_PROXY_CORR = 0.5
-DISTRIBUTION_SD_GAP = 1.0
-DRIFT_THRESHOLD = 0.05
-MIN_SUBGROUP_SIZE = 30
+HIGH_PROXY_CORR          = 0.7
+MEDIUM_PROXY_CORR        = 0.5
+DISTRIBUTION_SD_GAP      = 1.0
+DRIFT_THRESHOLD          = 0.05
 
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# JSON ENCODER FOR NUMPY TYPES
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# ── Adaptive bias score weights per domain ────────────────────────
+DOMAIN_WEIGHTS = {
+    "finance":  {"DI":0.30,"DP":0.20,"proxy":0.20,"label":0.10,"dist":0.08,"intersect":0.12},
+    "medical":  {"DI":0.10,"DP":0.10,"proxy":0.10,"label":0.35,"dist":0.15,"intersect":0.20},
+    "hiring":   {"DI":0.20,"DP":0.15,"proxy":0.25,"label":0.15,"dist":0.10,"intersect":0.15},
+    "criminal": {"DI":0.25,"DP":0.15,"proxy":0.15,"label":0.25,"dist":0.10,"intersect":0.10},
+    "generic":  {"DI":0.20,"DP":0.15,"proxy":0.15,"label":0.15,"dist":0.15,"intersect":0.20},
+}
+
+def load_file(path):
+    """
+    Auto-detect file format and load into DataFrame.
+    Supports: CSV, TSV, TXT, Excel, Parquet, Feather, HDF5, JSON, XML
+    """
+    ext = os.path.splitext(path)[1].lower()
+
+    # ── Flat files ────────────────────────────────────────────────
+    if ext in ('.csv', '.txt'):
+        # Try comma first, fall back to auto-detect
+        try:
+            return pd.read_csv(path, encoding='utf-8')
+        except UnicodeDecodeError:
+            return pd.read_csv(path, encoding='latin-1')
+
+    elif ext == '.tsv':
+        try:
+            return pd.read_csv(path, sep='\t', encoding='utf-8')
+        except UnicodeDecodeError:
+            return pd.read_csv(path, sep='\t', encoding='latin-1')
+
+    # ── Spreadsheets ──────────────────────────────────────────────
+    elif ext in ('.xlsx', '.xls'):
+        # If multiple sheets exist, ask user which one
+        xl = pd.ExcelFile(path)
+        if len(xl.sheet_names) > 1:
+            print(f"  {Fore.CYAN}Sheets found: {xl.sheet_names}{Style.RESET_ALL}")
+            sheet = input("  Which sheet? (press Enter for first): ").strip()
+            sheet = sheet if sheet else xl.sheet_names[0]
+        else:
+            sheet = xl.sheet_names[0]
+        return pd.read_excel(path, sheet_name=sheet)
+
+    elif ext == '.ods':
+        return pd.read_excel(path, engine='odf')
+
+    # ── Big data formats ──────────────────────────────────────────
+    elif ext == '.parquet':
+        return pd.read_parquet(path)
+
+    elif ext == '.feather':
+        return pd.read_feather(path)
+
+    elif ext in ('.h5', '.hdf5'):
+        # HDF5 can have multiple keys
+        import h5py
+        with h5py.File(path, 'r') as f:
+            keys = list(f.keys())
+        if not keys:
+            raise ValueError("HDF5 file contains no datasets — cannot load")
+        if len(keys) > 1:
+            print(f"  {Fore.CYAN}HDF5 keys: {keys}{Style.RESET_ALL}")
+            key = input("  Which key? (press Enter for first): ").strip()
+            key = key if key else keys[0]
+        else:
+            key = keys[0]
+        return pd.read_hdf(path, key=key)
+
+    # ── Semi-structured ───────────────────────────────────────────
+    elif ext == '.json':
+        try:
+            return pd.read_json(path)
+        except ValueError:
+            # Nested JSON → normalize
+            with open(path) as f:
+                data = json.load(f)
+            return pd.json_normalize(data)
+
+    elif ext == '.xml':
+        return pd.read_xml(path)
+
+    # ── Unknown format ────────────────────────────────────────────
+    else:
+        raise ValueError(
+            f"Unsupported format: '{ext}'\n"
+            f"Supported: .csv .tsv .txt .xlsx .xls .ods "
+            f".parquet .feather .h5 .hdf5 .json .xml"
+        )
+
+# FIX-03: scale min subgroup size to dataset size
+def dynamic_min_size(n):
+    if n <= 20:   return 2
+    if n <= 50:   return 5
+    if n <= 200:  return 10
+    if n <= 1000: return 20
+    return 30
+
 class NumpyEncoder(json.JSONEncoder):
-    """Handle numpy types during JSON serialization."""
     def default(self, obj):
-        if isinstance(obj, (np.integer,)):
-            return int(obj)
-        if isinstance(obj, (np.floating,)):
-            return float(obj)
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        if isinstance(obj, np.bool_):
-            return bool(obj)
+        if isinstance(obj, np.integer): return int(obj)
+        if isinstance(obj, np.floating): return None if math.isnan(obj) else float(obj)
+        if isinstance(obj, np.ndarray):  return obj.tolist()
+        if isinstance(obj, np.bool_):    return bool(obj)
         return super().default(obj)
 
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# PRETTY PRINTING HELPERS
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 def banner():
-    """Print the FairSight banner."""
     print(f"\n{Fore.CYAN}{Style.BRIGHT}")
     print("  ╔══════════════════════════════════════════════════════╗")
-    print("  ║        ⚖️  FairSight CLI — Bias Detection Tool       ║")
-    print("  ║        Comprehensive 6-Layer Fairness Audit         ║")
+    print("  ║   ⚖  FairSight CLI v2.1 — Bias Detection Tool       ║")
+    print("  ║      Comprehensive 6-Layer Fairness Audit            ║")
     print("  ╚══════════════════════════════════════════════════════╝")
     print(Style.RESET_ALL)
 
+def shdr(n, t): print(f"\n{Fore.CYAN}{Style.BRIGHT}{'━'*62}\n  LAYER {n} — {t}\n{'━'*62}{Style.RESET_ALL}\n")
+def p_pass(t): print(f"  {Fore.GREEN}✓ PASS{Style.RESET_ALL}  {t}")
+def p_fail(t): print(f"  {Fore.RED}✗ FAIL{Style.RESET_ALL}  {t}")
+def p_warn(t): print(f"  {Fore.YELLOW}⚠ WARN{Style.RESET_ALL}  {t}")
+def p_info(t): print(f"  {Fore.CYAN}ℹ INFO{Style.RESET_ALL}  {t}")
+def p_skip(t): print(f"  {Fore.CYAN}⊘ SKIP{Style.RESET_ALL}  {t}")
+def p_rec(t):  print(f"  {Fore.MAGENTA}→ REC {Style.RESET_ALL}  {t}")
 
-def section_header(layer_num, title):
-    """Print a styled section header."""
-    print(f"\n{Fore.CYAN}{Style.BRIGHT}{'━' * 62}")
-    print(f"  LAYER {layer_num} — {title}")
-    print(f"{'━' * 62}{Style.RESET_ALL}\n")
+def detect_protected(df):
+    return [c for c in df.columns if any(k in c.lower() for k in PROTECTED_KEYWORDS)]
 
-
-def p_pass(text):
-    print(f"  {Fore.GREEN}✓ PASS{Style.RESET_ALL}  {text}")
-
-
-def p_fail(text):
-    print(f"  {Fore.RED}✗ FAIL{Style.RESET_ALL}  {text}")
-
-
-def p_warn(text):
-    print(f"  {Fore.YELLOW}⚠ WARN{Style.RESET_ALL}  {text}")
-
-
-def p_info(text):
-    print(f"  {Fore.CYAN}ℹ INFO{Style.RESET_ALL}  {text}")
-
-
-def p_rec(text):
-    """Print a recommendation."""
-    print(f"  {Fore.MAGENTA}→ REC {Style.RESET_ALL}  {text}")
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# AUTO-DETECTION UTILITIES
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def detect_protected_attributes(df):
-    """Auto-detect protected attributes by scanning column names."""
-    protected = []
-    for col in df.columns:
-        col_lower = col.lower().strip()
-        for kw in PROTECTED_KEYWORDS:
-            if kw in col_lower:
-                protected.append(col)
-                break
-    return protected
-
-
-def bin_numeric_protected(df, protected_attrs):
-    """
-    For numeric protected attributes with many unique values (e.g. age),
-    create a binned version so fairness analysis uses meaningful groups
-    instead of hundreds of single-value groups.
-    Returns (modified_df, updated_protected_attrs, binning_info).
-    """
-    df = df.copy()
-    new_attrs = []
-    binning_info = {}
-
-    for attr in protected_attrs:
-        if pd.api.types.is_numeric_dtype(df[attr]) and df[attr].nunique() > 10:
-            # Bin into meaningful ranges
-            col_lower = attr.lower()
-            if "age" in col_lower:
-                bins = [0, 25, 35, 45, 55, 65, 120]
-                labels = ["18-25", "26-35", "36-45", "46-55", "56-65", "65+"]
+def bin_numeric_protected(df, attrs):
+    df = df.copy(); new_attrs = []; info = {}
+    for attr in attrs:
+        col = df[attr]
+        if pd.api.types.is_numeric_dtype(col) and col.nunique() > 10:
+            if "age" in attr.lower():
+                df[attr+"_group"] = pd.cut(col,[0,25,35,45,55,65,120],
+                    labels=["18-25","26-35","36-45","46-55","56-65","65+"],right=True).astype(str)
             else:
-                # Generic quintile binning
-                df[f"{attr}_group"], bin_edges = pd.qcut(
-                    df[attr], q=4, retbins=True, duplicates="drop"
-                )
-                df[f"{attr}_group"] = df[f"{attr}_group"].astype(str)
-                new_attrs.append(f"{attr}_group")
-                binning_info[attr] = f"Binned into quartiles → {attr}_group"
-                p_info(f"Binned numeric '{attr}' into quartiles → '{attr}_group'")
-                continue
-
-            df[f"{attr}_group"] = pd.cut(
-                df[attr], bins=bins, labels=labels, right=True
-            ).astype(str)
-            new_attrs.append(f"{attr}_group")
-            binning_info[attr] = f"Binned into {labels} → {attr}_group"
-            p_info(f"Binned numeric '{attr}' into age ranges → '{attr}_group'")
+                try:    df[attr+"_group"] = pd.qcut(col,q=4,duplicates="drop").astype(str)
+                except Exception: df[attr+"_group"] = col.astype(str)
+            new_attrs.append(attr+"_group"); info[attr] = True
+            p_info(f"Binned numeric '{attr}' → '{attr}_group'")
         else:
             new_attrs.append(attr)
+    return df, new_attrs, info
 
-    return df, new_attrs, binning_info
-
-
-def detect_target_column(df, target_arg=None):
-    """Detect or validate the target column."""
-    if target_arg:
-        if target_arg in df.columns:
-            return target_arg
-        print(f"\n{Fore.RED}  Error: Target column '{target_arg}' not found in CSV.{Style.RESET_ALL}")
-        print(f"  Available columns: {list(df.columns)}")
-        sys.exit(1)
-    # Default: last column
+def detect_target(df, arg):
+    if arg:
+        if arg in df.columns: return arg
+        print(f"{Fore.RED}Target '{arg}' not found. Columns: {list(df.columns)}{Style.RESET_ALL}"); sys.exit(1)
     return df.columns[-1]
 
+def binarise_target(df, target):
+    """FIX-02 FIX-04 FIX-12: safe binarisation of any target type."""
+    df = df.copy(); col = df[target]; nu = col.nunique()
+    if nu <= 1:
+        p_warn(f"Target '{target}' has only 1 unique value — model metrics will be skipped.")
+        df[target] = 1; return df, "1", True
+    if nu == 2:
+        vals = col.dropna().unique().tolist()
+        pos = next((v for v in vals if ">" in str(v) or str(v).strip().lower() in ("1","yes","true","high")),
+                   max(vals, key=lambda v: sum(
+                       h in str(v).lower()
+                       for h in (">","1","yes","true","high","approved","pass","positive","accept")
+                   )))
+        df[target] = (col == pos).astype(int); return df, str(pos), False
+    if pd.api.types.is_numeric_dtype(col):
+        med = col.median()
+        p_warn(f"Multi-value numeric target — binarising at median ({med}).")
+        df[target] = (col >= med).astype(int); return df, f">={med}", False
+    top = col.mode()[0]
+    p_warn(f"Multi-value string target — using '{top}' as positive class.")
+    df[target] = (col == top).astype(int); return df, str(top), False
 
-def identify_groups(df, attr, target):
-    """
-    Identify privileged (highest positive rate) and unprivileged groups.
-    Returns (privileged_value, dict_of_group_rates).
-    """
-    rates = df.groupby(attr)[target].mean()
-    privileged = rates.idxmax()
-    return privileged, rates.to_dict()
+def safe_di(u, p):
+    """FIX-05: NaN/Inf-safe disparate impact."""
+    if p is None or math.isnan(p) or p == 0 or u is None or math.isnan(u): return None
+    return u / p
 
+def writable_dir(path):
+    """FIX-11: fallback to cwd if path not writable."""
+    try:
+        os.makedirs(path, exist_ok=True)
+        t = os.path.join(path, ".fs_test")
+        with open(t, "w"): pass
+        os.remove(t)
+        return path
+    except Exception: return os.getcwd()
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# LAYER 1 — STANDARD FAIRNESS METRICS
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def layer1(df, protected_attrs, target):
-    """Compute 4 standard fairness metrics for each protected attribute."""
-    section_header(1, "Standard Fairness Metrics")
+def encode_col(series):
+    """FIX-09: safe numeric encoding; None if zero-variance or uncompatible."""
+    s = series.dropna()
+    if s.nunique() < 2: return None, None
+    if pd.api.types.is_numeric_dtype(s): return s.values, s.index
+    if s.nunique() <= 10:
+        codes = s.astype("category").cat.codes
+        return codes.values.astype(float), codes.index
+    return None, None
 
-    results = {"status": "PASS", "metrics": {}, "issues": []}
+# ══════════════════════════════════════════════════════════════════
+# LAYER 1
+# ══════════════════════════════════════════════════════════════════
+def layer1(df, protected_attrs, target, trivial, min_size):
+    shdr(1, "Standard Fairness Metrics")
+    res = {"status":"PASS","metrics":{},"issues":[]}
 
-    # ── Train a model for EOD / PPD ──────────────────────────────────
+    # FIX-06: train model safely
     predictions = None
-    if HAS_SKLEARN:
+    if HAS_SKLEARN and not trivial:
         try:
-            feature_cols = [
-                c for c in df.columns
-                if c not in protected_attrs and c != target
-            ]
-            X = df[feature_cols].copy()
+            fcols = [c for c in df.columns if c not in protected_attrs and c != target]
+            X = df[fcols].copy()
             y = df[target].values
-
-            for col in X.select_dtypes(include=["object", "category"]).columns:
-                X[col] = LabelEncoder().fit_transform(X[col].astype(str))
-            X = X.fillna(X.median())
-
-            if len(np.unique(y)) >= 2:
-                clf = GradientBoostingClassifier(
-                    n_estimators=50, max_depth=3, random_state=42
-                )
-                predictions = cross_val_predict(clf, X, y, cv=5)
-                p_info(f"Trained GBM for Equal Opportunity & Predictive Parity (5-fold CV)")
-        except Exception as exc:
-            p_warn(f"Could not train model for EOD/PPD: {exc}")
-    else:
-        p_warn("scikit-learn not available — EOD and PPD will be skipped")
+            for c in X.select_dtypes(include=["object","category"]).columns:
+                X[c] = LabelEncoder().fit_transform(X[c].astype(str))
+            X = X.fillna(X.median(numeric_only=True))
+            n_cls = len(np.unique(y)); n = len(y)
+            cv = min(5, n//2) if n >= 10 else 0
+            if n_cls >= 2 and cv >= 2:
+                clf = GradientBoostingClassifier(n_estimators=50,max_depth=3,random_state=42)
+                predictions = cross_val_predict(clf, X, y, cv=cv)
+                p_info(f"Trained GBM ({cv}-fold CV) for EOD & PPD")
+            else:
+                p_skip("Model training skipped — need ≥2 classes and ≥10 rows")
+        except Exception as e:
+            p_warn(f"Model training failed: {e}")
 
     actual = df[target].values
 
     for attr in protected_attrs:
-        print(f"\n  {Style.BRIGHT}Protected attribute: {attr}{Style.RESET_ALL}")
-        groups = df[attr].unique()
-        n_groups = len(groups)
-
-        # Warn on small groups
+        print(f"\n  {Style.BRIGHT}Protected: {attr}{Style.RESET_ALL}")
+        groups = df[attr].dropna().unique()
         for g in groups:
-            cnt = (df[attr] == g).sum()
-            if cnt < MIN_SUBGROUP_SIZE:
-                p_warn(f"Group '{g}' has only {cnt} samples (< {MIN_SUBGROUP_SIZE})")
+            cnt = (df[attr]==g).sum()
+            if cnt < min_size: p_warn(f"Group '{g}' n={cnt} (< {min_size})")
 
-        privileged, group_rates = identify_groups(df, attr, target)
-        priv_mask = (df[attr] == privileged).values
-        unpriv_mask = ~priv_mask
-
-        if priv_mask.sum() == 0 or unpriv_mask.sum() == 0:
-            p_pass(f"Group uniform — no unprivileged comparison possible. Passing by default.")
-            results["metrics"][attr] = {
-                "disparate_impact": {"value": 1.0, "pass": True},
-                "demographic_parity": {"value": 0.0, "pass": True},
-                "equal_opportunity": {"value": 0.0, "pass": True},
-                "predictive_parity": {"value": 0.0, "pass": True},
-            }
+        # FIX-01: require ≥2 valid groups
+        valid = [g for g in groups if (df[attr]==g).sum() >= min_size]
+        if len(valid) < 2:
+            p_skip(f"'{attr}' has <2 groups with ≥{min_size} samples — not enough data to measure bias")
+            res["metrics"][attr] = {"skipped":True,"reason":"insufficient_groups"}
             continue
 
-        priv_rate = df.loc[priv_mask, target].mean()
-        unpriv_rate = df.loc[unpriv_mask, target].mean()
+        sub = df[df[attr].isin(valid)]
+        rates = sub.groupby(attr)[target].mean()
+        priv  = rates.idxmax(); unpriv = rates.idxmin()
+        pr    = float(rates[priv]); ur = float(rates[unpriv])
+        pm    = df[attr]==priv;     um = df[attr]==unpriv
+        am    = {}
 
-        attr_metrics = {}
-
-        # 1. Disparate Impact Ratio
-        di = unpriv_rate / priv_rate if priv_rate > 0 else 0.0
-        di = 1.0 if np.isnan(di) else di
-        di_ok = di >= DI_THRESHOLD or np.isnan(di)
-        attr_metrics["disparate_impact"] = {
-            "value": round(di, 4),
-            "threshold": DI_THRESHOLD,
-            "pass": di_ok,
-            "privileged": str(privileged),
-            "priv_rate": round(priv_rate, 4),
-            "unpriv_rate": round(unpriv_rate, 4),
-        }
-        (p_pass if di_ok else p_fail)(
-            f"Disparate Impact: {di:.4f}  "
-            f"({'≥' if di_ok else '<'} {DI_THRESHOLD})  "
-            f"[priv={privileged} {priv_rate:.1%} | unpriv {unpriv_rate:.1%}]"
-        )
-        if not di_ok:
-            results["status"] = "FAIL"
-            results["issues"].append(f"DI={di:.2f} on {attr}")
-
-        # 2. Demographic Parity Gap
-        dp = unpriv_rate - priv_rate
-        dp = 0.0 if np.isnan(dp) else dp
-        dp_ok = abs(dp) <= DP_THRESHOLD
-        attr_metrics["demographic_parity"] = {
-            "value": round(dp, 4),
-            "threshold": DP_THRESHOLD,
-            "pass": dp_ok,
-        }
-        (p_pass if dp_ok else p_fail)(
-            f"Demographic Parity Gap: {dp:+.4f}  "
-            f"({'|gap| ≤' if dp_ok else '|gap| >'} {DP_THRESHOLD})"
-        )
-        if not dp_ok:
-            results["status"] = "FAIL"
-            results["issues"].append(f"DP={dp:+.2f} on {attr}")
-
-        # 3. Equal Opportunity Difference (needs model predictions)
-        if predictions is not None:
-            priv_actual_pos = actual[priv_mask] == 1
-            unpriv_actual_pos = actual[unpriv_mask] == 1
-
-            priv_tpr = (
-                predictions[priv_mask][priv_actual_pos].mean()
-                if priv_actual_pos.sum() > 0
-                else 0.0
-            )
-            unpriv_tpr = (
-                predictions[unpriv_mask][unpriv_actual_pos].mean()
-                if unpriv_actual_pos.sum() > 0
-                else 0.0
-            )
-            eod = unpriv_tpr - priv_tpr
-            eod = 0.0 if np.isnan(eod) else eod
-            eod_ok = abs(eod) <= EO_THRESHOLD
-            attr_metrics["equal_opportunity"] = {
-                "value": round(eod, 4),
-                "threshold": EO_THRESHOLD,
-                "pass": eod_ok,
-                "priv_tpr": round(priv_tpr, 4),
-                "unpriv_tpr": round(unpriv_tpr, 4),
-            }
-            (p_pass if eod_ok else p_fail)(
-                f"Equal Opportunity Diff: {eod:+.4f}  "
-                f"({'|diff| ≤' if eod_ok else '|diff| >'} {EO_THRESHOLD})"
-            )
-            if not eod_ok:
-                results["status"] = "FAIL"
-                results["issues"].append(f"EOD={eod:+.2f} on {attr}")
+        # DI
+        di = safe_di(ur, pr)
+        if di is None:
+            p_skip(f"DI: cannot compute (priv_rate={pr:.3f})")
+            am["disparate_impact"] = {"value":None,"pass":None,"reason":"degenerate"}
         else:
-            attr_metrics["equal_opportunity"] = {"value": None, "pass": None}
+            ok = di >= DI_THRESHOLD
+            am["disparate_impact"] = {"value":round(di,4),"threshold":DI_THRESHOLD,"pass":ok,
+                "privileged":str(priv),"priv_rate":round(pr,4),"unpriv_rate":round(ur,4)}
+            (p_pass if ok else p_fail)(
+                f"Disparate Impact: {di:.4f}  ({'≥' if ok else '<'} {DI_THRESHOLD})  "
+                f"[priv={priv} {pr:.1%} | unpriv={unpriv} {ur:.1%}]")
+            if not ok: res["status"]="FAIL"; res["issues"].append(f"DI={di:.2f} on '{attr}'")
 
-        # 4. Predictive Parity Difference
+        # DP
+        dp = ur - pr; ok = abs(dp) <= DP_THRESHOLD
+        am["demographic_parity"] = {"value":round(dp,4),"threshold":DP_THRESHOLD,"pass":ok}
+        (p_pass if ok else p_fail)(
+            f"Demographic Parity Gap: {dp:+.4f}  ({'|gap| ≤' if ok else '|gap| >'} {DP_THRESHOLD})")
+        if not ok: res["status"]="FAIL"; res["issues"].append(f"DP={dp:+.2f} on '{attr}'")
+
+        # EO
         if predictions is not None:
-            priv_pred_pos = predictions[priv_mask] == 1
-            unpriv_pred_pos = predictions[unpriv_mask] == 1
-
-            priv_ppv = (
-                actual[priv_mask][priv_pred_pos].mean()
-                if priv_pred_pos.sum() > 0
-                else 1.0 # default to 1 if no positive predictions
-            )
-            unpriv_ppv = (
-                actual[unpriv_mask][unpriv_pred_pos].mean()
-                if unpriv_pred_pos.sum() > 0
-                else 1.0
-            )
-            ppd = unpriv_ppv - priv_ppv
-            ppd = 0.0 if np.isnan(ppd) else ppd
-            ppd_ok = abs(ppd) <= PP_THRESHOLD
-            attr_metrics["predictive_parity"] = {
-                "value": round(ppd, 4),
-                "threshold": PP_THRESHOLD,
-                "pass": ppd_ok,
-                "priv_ppv": round(priv_ppv, 4),
-                "unpriv_ppv": round(unpriv_ppv, 4),
-            }
-            (p_pass if ppd_ok else p_fail)(
-                f"Predictive Parity Diff: {ppd:+.4f}  "
-                f"({'|diff| ≤' if ppd_ok else '|diff| >'} {PP_THRESHOLD})"
-            )
-            if not ppd_ok:
-                results["status"] = "FAIL"
-                results["issues"].append(f"PPD={ppd:+.2f} on {attr}")
-        else:
-            attr_metrics["predictive_parity"] = {"value": None, "pass": None}
-
-        results["metrics"][attr] = attr_metrics
-
-    return results
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# LAYER 2 — INTERSECTIONAL ANALYSIS
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def layer2(df, protected_attrs, target):
-    """Intersectional bias analysis across combinations of protected attributes."""
-    section_header(2, "Intersectional Analysis")
-
-    results = {"status": "PASS", "subgroups": [], "issues": [], "worst": None}
-
-    if len(protected_attrs) < 2:
-        p_info("Only one protected attribute detected — skipping intersectional analysis.")
-        results["status"] = "SKIP"
-        return results
-
-    overall_rate = df[target].mean()
-    p_info(f"Overall positive rate: {overall_rate:.1%}")
-
-    worst_deviation = 0.0
-    worst_group = None
-    flagged_entries = []  # collect all flagged subgroups for sorted reporting
-
-    # Only analyze pairwise combinations (2-way) to keep output manageable
-    for combo in combinations(protected_attrs, 2):
-        combo_label = " × ".join(combo)
-        p_info(f"Analyzing intersection: {combo_label}")
-
-        grouped = df.groupby(list(combo))[target]
-        small_count = 0
-        for name, group in grouped:
-            if isinstance(name, str):
-                name = (name,)
-            sub_label = "+".join(str(v) for v in name)
-            n = len(group)
-            rate = group.mean()
-            deviation = abs(rate - overall_rate)
-
-            entry = {
-                "intersection": combo_label,
-                "subgroup": sub_label,
-                "n": int(n),
-                "rate": round(rate, 4),
-                "overall_rate": round(overall_rate, 4),
-                "deviation": round(deviation, 4),
-            }
-
-            # Skip very small subgroups from output (still record them)
-            if n < MIN_SUBGROUP_SIZE:
-                entry["small_sample"] = True
-                small_count += 1
-                results["subgroups"].append(entry)
-                # Still track worst even if small
-                if deviation > worst_deviation:
-                    worst_deviation = deviation
-                    worst_group = {
-                        "subgroup": sub_label,
-                        "rate": round(rate, 4),
-                        "deviation": round(deviation, 4),
-                        "n": int(n),
-                        "small_sample": True,
-                    }
-                continue
-
-            if deviation > INTERSECTIONAL_DEVIATION:
-                flag = "below" if rate < overall_rate else "above"
-                flagged_entries.append((deviation, sub_label, rate, flag, n))
-                results["status"] = "FAIL"
-                entry["flagged"] = True
-                results["issues"].append(
-                    f"{sub_label}: {rate:.0%} vs {overall_rate:.0%} overall"
-                )
-            else:
-                p_pass(f"  {sub_label}: {rate:.1%}  (n={n}, within threshold)")
-
-            if deviation > worst_deviation:
-                worst_deviation = deviation
-                worst_group = {
-                    "subgroup": sub_label,
-                    "rate": round(rate, 4),
-                    "deviation": round(deviation, 4),
-                    "n": int(n),
-                }
-
-            results["subgroups"].append(entry)
-
-        if small_count > 0:
-            p_warn(f"  {small_count} subgroup(s) skipped (n < {MIN_SUBGROUP_SIZE})")
-
-    # Print flagged subgroups sorted by severity
-    if flagged_entries:
-        flagged_entries.sort(reverse=True)
-        print(f"\n  {Style.BRIGHT}Flagged intersectional subgroups (by severity):{Style.RESET_ALL}")
-        for dev, label, rate, direction, n in flagged_entries[:10]:  # top 10
-            p_fail(
-                f"  {label}: {rate:.1%} positive rate vs "
-                f"{overall_rate:.1%} overall ({direction} by {dev:.1%}, n={n})"
-            )
-        if len(flagged_entries) > 10:
-            p_info(f"  ... and {len(flagged_entries) - 10} more flagged subgroups")
-
-    if worst_group:
-        results["worst"] = worst_group
-        small_note = " ⚠ small sample" if worst_group.get("small_sample") else ""
-        print(
-            f"\n  {Style.BRIGHT}Worst affected group:{Style.RESET_ALL} "
-            f"{worst_group['subgroup']}  "
-            f"(rate={worst_group['rate']:.1%}, "
-            f"deviation={worst_group['deviation']:.1%}, "
-            f"n={worst_group.get('n', '?')}){small_note}"
-        )
-
-    return results
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# LAYER 3 — PROXY DETECTION
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def _encode_column(series):
-    """Encode a column to numeric for correlation. Returns array or None."""
-    if pd.api.types.is_numeric_dtype(series):
-        return series.dropna().values, series.dropna().index
-    if series.dtype in ("object", "category"):
-        if series.nunique() <= 2:
-            vals = series.astype("category").cat.codes
-            mask = vals >= 0
-            return vals[mask].values.astype(float), vals[mask].index
-    return None, None
-
-
-def layer3(df, protected_attrs, target, binned_originals=None):
-    """Detect proxy variables via correlation and SHAP analysis."""
-    section_header(3, "Proxy Variable Detection")
-
-    binned_originals = binned_originals or set()
-    results = {"status": "PASS", "proxies": [], "shap_top": [], "issues": []}
-    non_protected = [
-        c for c in df.columns
-        if c not in protected_attrs and c != target and c not in binned_originals
-    ]
-
-    all_proxies = []
-
-    for attr in protected_attrs:
-        attr_encoded, attr_idx = _encode_column(df[attr])
-        if attr_encoded is None:
-            # Multi-class categorical: one-vs-rest encoding
-            for val in df[attr].unique():
-                binary = (df[attr] == val).astype(float)
-                attr_encoded_bin = binary.values
-                for col in non_protected:
-                    col_encoded, col_idx = _encode_column(df[col])
-                    if col_encoded is None:
-                        continue
-                    common = df.index
-                    try:
-                        r_val, p_val = pointbiserialr(
-                            attr_encoded_bin[common], col_encoded[common] if len(col_encoded) == len(df) else col_encoded
-                        )
-                    except Exception:
-                        continue
-                    if np.isnan(r_val):
-                        continue
-                    risk = None
-                    if abs(r_val) > HIGH_PROXY_CORR and p_val < 0.05:
-                        risk = "HIGH"
-                    elif abs(r_val) > MEDIUM_PROXY_CORR and p_val < 0.05:
-                        risk = "MEDIUM"
-                    if risk:
-                        all_proxies.append({
-                            "feature": col,
-                            "protected_attr": f"{attr}={val}",
-                            "correlation": round(r_val, 4),
-                            "p_value": round(p_val, 6),
-                            "risk": risk,
-                        })
-            continue
-
-        for col in non_protected:
-            col_encoded, col_idx = _encode_column(df[col])
-            if col_encoded is None:
-                continue
-            # Align indices
-            common_idx = attr_idx.intersection(col_idx)
-            if len(common_idx) < MIN_SUBGROUP_SIZE:
-                continue
-            a = df.loc[common_idx, attr] if attr_encoded is None else attr_encoded[np.isin(attr_idx, common_idx)]
-            c = col_encoded[np.isin(col_idx, common_idx)]
-
-            # Re-encode attr for common index
-            attr_ser = df[attr].loc[common_idx]
-            attr_enc2, _ = _encode_column(attr_ser)
-            if attr_enc2 is None:
-                continue
-
             try:
-                r_val, p_val = pointbiserialr(attr_enc2, c)
-            except Exception:
-                try:
-                    r_val, p_val = stats.pearsonr(attr_enc2.astype(float), c.astype(float))
-                except Exception:
-                    continue
-            if np.isnan(r_val):
+                pp = actual[pm.values]==1; up = actual[um.values]==1
+                pt = float(predictions[pm.values][pp].mean()) if pp.sum()>0 else 0.0
+                ut = float(predictions[um.values][up].mean()) if up.sum()>0 else 0.0
+                eod = ut-pt; ok = abs(eod)<=EO_THRESHOLD
+                am["equal_opportunity"] = {"value":round(eod,4),"threshold":EO_THRESHOLD,"pass":ok,
+                    "priv_tpr":round(pt,4),"unpriv_tpr":round(ut,4)}
+                (p_pass if ok else p_fail)(
+                    f"Equal Opportunity Diff: {eod:+.4f}  ({'|diff| ≤' if ok else '|diff| >'} {EO_THRESHOLD})")
+                if not ok: res["status"]="FAIL"; res["issues"].append(f"EOD={eod:+.2f} on '{attr}'")
+            except Exception as e:
+                p_warn(f"EOD failed: {e}"); am["equal_opportunity"]={"value":None,"pass":None}
+        else:
+            p_skip("EOD: no model predictions"); am["equal_opportunity"]={"value":None,"pass":None}
+
+        # PP
+        if predictions is not None:
+            try:
+                pp2 = predictions[pm.values]==1; up2 = predictions[um.values]==1
+                pv = float(actual[pm.values][pp2].mean()) if pp2.sum()>0 else 0.0
+                uv = float(actual[um.values][up2].mean()) if up2.sum()>0 else 0.0
+                ppd = uv-pv; ok = abs(ppd)<=PP_THRESHOLD
+                am["predictive_parity"] = {"value":round(ppd,4),"threshold":PP_THRESHOLD,"pass":ok,
+                    "priv_ppv":round(pv,4),"unpriv_ppv":round(uv,4)}
+                (p_pass if ok else p_fail)(
+                    f"Predictive Parity Diff: {ppd:+.4f}  ({'|diff| ≤' if ok else '|diff| >'} {PP_THRESHOLD})")
+                if not ok: res["status"]="FAIL"; res["issues"].append(f"PPD={ppd:+.2f} on '{attr}'")
+            except Exception as e:
+                p_warn(f"PPD failed: {e}"); am["predictive_parity"]={"value":None,"pass":None}
+        else:
+            p_skip("PPD: no model predictions"); am["predictive_parity"]={"value":None,"pass":None}
+
+        res["metrics"][attr] = am
+    return res
+
+# ══════════════════════════════════════════════════════════════════
+# LAYER 2
+# ══════════════════════════════════════════════════════════════════
+def layer2(df, protected_attrs, target, min_size):
+    shdr(2, "Intersectional Analysis")
+    res = {"status":"PASS","subgroups":[],"issues":[],"worst":None}
+    if len(protected_attrs) < 2:
+        p_skip("Need ≥2 protected attributes for intersectional analysis."); res["status"]="SKIP"; return res
+
+    overall = df[target].mean(); p_info(f"Overall positive rate: {overall:.1%}")
+    worst_dev = 0.0; worst_grp = None; flagged = []
+
+    for combo in combinations(protected_attrs, 2):
+        lbl = " × ".join(combo); p_info(f"Analyzing: {lbl}")
+        small = 0
+        for name, grp in df.groupby(list(combo))[target]:
+            if isinstance(name, str): name = (name,)
+            sub = "+".join(str(v) for v in name)
+            n = len(grp); rate = float(grp.mean()); dev = abs(rate - float(overall))
+            entry = {"intersection":lbl,"subgroup":sub,"n":int(n),
+                     "rate":round(rate,4),"overall_rate":round(float(overall),4),"deviation":round(dev,4)}
+            if n < min_size:
+                entry["small_sample"] = True; small += 1; res["subgroups"].append(entry)
+                if dev > worst_dev: worst_dev = dev; worst_grp = {**entry,"small_sample":True}
                 continue
+            if dev > INTERSECTIONAL_DEVIATION:
+                flagged.append((dev, sub, rate, "below" if rate < overall else "above", n))
+                res["status"] = "FAIL"; entry["flagged"] = True
+                res["issues"].append(f"{sub}: {rate:.0%} vs {overall:.0%}")
+            else:
+                p_pass(f"  {sub}: {rate:.1%}  (n={n})")
+            if dev > worst_dev: worst_dev = dev; worst_grp = entry
+            res["subgroups"].append(entry)
+        if small: p_warn(f"  {small} subgroup(s) n<{min_size} skipped")
 
-            risk = None
-            if abs(r_val) > HIGH_PROXY_CORR and p_val < 0.05:
-                risk = "HIGH"
-            elif abs(r_val) > MEDIUM_PROXY_CORR and p_val < 0.05:
-                risk = "MEDIUM"
-            if risk:
-                all_proxies.append({
-                    "feature": col,
-                    "protected_attr": attr,
-                    "correlation": round(r_val, 4),
-                    "p_value": round(p_val, 6),
-                    "risk": risk,
-                })
+    # FIX-08: if no non-small subgroups were flagged, revert to PASS
+    if res["status"] == "FAIL" and not flagged: res["status"] = "PASS"
 
-    # Deduplicate and keep highest correlation per feature-attr pair
-    seen = {}
-    for proxy in all_proxies:
-        key = (proxy["feature"], proxy["protected_attr"])
-        if key not in seen or abs(proxy["correlation"]) > abs(seen[key]["correlation"]):
-            seen[key] = proxy
-    all_proxies = sorted(seen.values(), key=lambda x: abs(x["correlation"]), reverse=True)
+    if flagged:
+        flagged.sort(reverse=True)
+        print(f"\n  {Style.BRIGHT}Flagged subgroups (severity order):{Style.RESET_ALL}")
+        for dev, sub, rate, dir_, n in flagged[:10]:
+            p_fail(f"  {sub}: {rate:.1%} vs {overall:.1%} ({dir_} by {dev:.1%}, n={n})")
+        if len(flagged) > 10: p_info(f"  … +{len(flagged)-10} more")
 
-    # Report top 5
-    top5 = all_proxies[:5]
-    for p in top5:
-        if p["risk"] == "HIGH":
-            p_fail(
-                f"{p['feature']} is {Fore.RED}HIGH RISK{Style.RESET_ALL} proxy for "
-                f"{p['protected_attr']}  (r={p['correlation']:.4f}, p={p['p_value']:.2e})"
-            )
-            results["status"] = "WARN" if results["status"] != "FAIL" else "FAIL"
-            results["issues"].append(
-                f"{p['feature']} is HIGH RISK proxy for {p['protected_attr']} (r={p['correlation']:.2f})"
-            )
-        elif p["risk"] == "MEDIUM":
-            p_warn(
-                f"{p['feature']} is {Fore.YELLOW}MEDIUM RISK{Style.RESET_ALL} proxy for "
-                f"{p['protected_attr']}  (r={p['correlation']:.4f}, p={p['p_value']:.2e})"
-            )
-            if results["status"] == "PASS":
-                results["status"] = "WARN"
-            results["issues"].append(
-                f"{p['feature']} is MEDIUM RISK proxy for {p['protected_attr']} (r={p['correlation']:.2f})"
-            )
+    if worst_grp:
+        res["worst"] = worst_grp
+        note = " ⚠ small sample" if worst_grp.get("small_sample") else ""
+        print(f"\n  {Style.BRIGHT}Worst group:{Style.RESET_ALL} {worst_grp['subgroup']}  "
+              f"(rate={worst_grp['rate']:.1%}, dev={worst_grp['deviation']:.1%}, n={worst_grp['n']}){note}")
+    return res
 
-    if not top5:
-        p_pass("No significant proxy variables detected.")
-
-    results["proxies"] = all_proxies
-
-    # ── SHAP analysis ────────────────────────────────────────────────
-    if HAS_SKLEARN and HAS_SHAP:
-        try:
-            p_info("Running SHAP feature importance analysis...")
-            feature_cols = [
-                c for c in df.columns if c not in protected_attrs and c != target
-            ]
-            X = df[feature_cols].copy()
-            y = df[target].values
-
-            for col in X.select_dtypes(include=["object", "category"]).columns:
-                X[col] = LabelEncoder().fit_transform(X[col].astype(str))
-            X = X.fillna(X.median())
-
-            clf = GradientBoostingClassifier(
-                n_estimators=50, max_depth=3, random_state=42
-            )
-            clf.fit(X, y)
-
-            explainer = shap.TreeExplainer(clf)
-            shap_values = explainer.shap_values(X)
-
-            mean_abs_shap = np.abs(shap_values).mean(axis=0)
-            shap_ranking = sorted(
-                zip(feature_cols, mean_abs_shap),
-                key=lambda x: x[1],
-                reverse=True,
-            )
-            results["shap_top"] = [
-                {"feature": f, "mean_abs_shap": round(s, 4)} for f, s in shap_ranking[:5]
-            ]
-
-            print()
-            p_info("Top 5 features by SHAP importance:")
-            for rank, (feat, val) in enumerate(shap_ranking[:5], 1):
-                # Check if this feature is also a proxy
-                is_proxy = any(p["feature"] == feat for p in all_proxies)
-                flag = f" {Fore.RED}← PROXY{Style.RESET_ALL}" if is_proxy else ""
-                print(f"    {rank}. {feat:20s}  SHAP={val:.4f}{flag}")
-        except Exception as exc:
-            p_warn(f"SHAP analysis failed: {exc}")
-    elif not HAS_SHAP:
-        p_info("SHAP not installed — skipping SHAP analysis")
-
-    return results
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# LAYER 4 — FEATURE DISTRIBUTION ANALYSIS
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def layer4(df, protected_attrs, target, binned_originals=None):
-    """Analyze feature distributions across protected groups."""
-    section_header(4, "Feature Distribution Analysis")
-
-    binned_originals = binned_originals or set()
-    results = {"status": "PASS", "distributions": [], "issues": []}
-
-    numeric_cols = [
-        c
-        for c in df.select_dtypes(include=[np.number]).columns
-        if c not in protected_attrs and c != target and c not in binned_originals
-    ]
-
-    if not numeric_cols:
-        p_info("No numeric non-protected columns to analyze.")
-        return results
+# ══════════════════════════════════════════════════════════════════
+# LAYER 3
+# ══════════════════════════════════════════════════════════════════
+def layer3(df, protected_attrs, target, binned_orig=None, trivial=False, min_size=5):
+    shdr(3, "Proxy Variable Detection")
+    binned_orig = binned_orig or set()
+    res = {"status":"PASS","proxies":[],"shap_top":[],"issues":[]}
+    non_prot = [c for c in df.columns if c not in protected_attrs and c != target and c not in binned_orig]
+    all_px = []
 
     for attr in protected_attrs:
-        groups = df[attr].unique()
-        if len(groups) < 2:
+        ae, ai = encode_col(df[attr])
+        if ae is None:
+            for val in df[attr].dropna().unique():
+                binary = (df[attr]==val).astype(float).values
+                for col in non_prot:
+                    ce, _ = encode_col(df[col])
+                    if ce is None or len(ce) != len(df): continue
+                    try:
+                        r, p = pointbiserialr(binary, ce)
+                        if math.isnan(r): continue
+                    except Exception: continue
+                    risk = ("HIGH" if abs(r)>HIGH_PROXY_CORR and p<0.05 else
+                            "MEDIUM" if abs(r)>MEDIUM_PROXY_CORR and p<0.05 else None)
+                    if risk: all_px.append({"feature":col,"protected_attr":f"{attr}={val}",
+                        "correlation":round(r,4),"p_value":round(p,6),"risk":risk})
             continue
+        for col in non_prot:
+            ce, ci = encode_col(df[col])
+            if ce is None: continue
+            common = ai.intersection(ci)
+            if len(common) < max(min_size, 3): continue
+            ae2, _ = encode_col(df.loc[common, attr])
+            ce2, _ = encode_col(df.loc[common, col])
+            if ae2 is None or ce2 is None: continue
+            try:
+                r, p = pointbiserialr(ae2, ce2)
+                if math.isnan(r): continue
+            except Exception:
+                try: r, p = stats.pearsonr(ae2.astype(float), ce2.astype(float))
+                except Exception: continue
+                if math.isnan(r): continue
+            risk = ("HIGH" if abs(r)>HIGH_PROXY_CORR and p<0.05 else
+                    "MEDIUM" if abs(r)>MEDIUM_PROXY_CORR and p<0.05 else None)
+            if risk: all_px.append({"feature":col,"protected_attr":attr,
+                "correlation":round(r,4),"p_value":round(p,6),"risk":risk})
 
-        print(f"\n  {Style.BRIGHT}Comparing distributions across: {attr}{Style.RESET_ALL}")
+    seen = {}
+    for px in all_px:
+        k = (px["feature"], px["protected_attr"])
+        if k not in seen or abs(px["correlation"]) > abs(seen[k]["correlation"]): seen[k] = px
+    all_px = sorted(seen.values(), key=lambda x: abs(x["correlation"]), reverse=True)
 
-        for col in numeric_cols:
-            group_stats = {}
-            for g in groups:
-                vals = df.loc[df[attr] == g, col].dropna()
-                group_stats[str(g)] = {
-                    "mean": round(vals.mean(), 2) if len(vals) > 0 else None,
-                    "std": round(vals.std(), 2) if len(vals) > 0 else None,
-                    "n": len(vals),
-                }
+    for px in all_px[:5]:
+        if px["risk"] == "HIGH":
+            p_fail(f"{px['feature']} HIGH RISK proxy for {px['protected_attr']}  (r={px['correlation']:.4f})")
+            if res["status"] == "PASS": res["status"] = "WARN"
+            res["issues"].append(f"{px['feature']} HIGH proxy for {px['protected_attr']}")
+        else:
+            p_warn(f"{px['feature']} MEDIUM RISK proxy for {px['protected_attr']}  (r={px['correlation']:.4f})")
+            if res["status"] == "PASS": res["status"] = "WARN"
+            res["issues"].append(f"{px['feature']} MEDIUM proxy for {px['protected_attr']}")
 
-            # Compute max mean difference vs pooled std
-            means = [s["mean"] for s in group_stats.values() if s["mean"] is not None]
-            stds = [s["std"] for s in group_stats.values() if s["std"] is not None]
+    if not all_px: p_pass("No significant proxy variables detected.")
+    res["proxies"] = all_px
 
-            if len(means) < 2 or not stds:
-                continue
-
-            max_diff = max(means) - min(means)
-            pooled_std = np.mean(stds) if stds else 1.0
-            sd_gap = max_diff / pooled_std if pooled_std > 0 else 0.0
-
-            entry = {
-                "feature": col,
-                "protected_attr": attr,
-                "group_stats": group_stats,
-                "max_mean_diff": round(max_diff, 2),
-                "pooled_std": round(pooled_std, 2),
-                "sd_gap": round(sd_gap, 2),
-            }
-
-            if sd_gap > DISTRIBUTION_SD_GAP:
-                # Find which groups differ most
-                sorted_groups = sorted(group_stats.items(), key=lambda x: x[1]["mean"] if x[1]["mean"] is not None else 0)
-                low_g = sorted_groups[0][0]
-                high_g = sorted_groups[-1][0]
-                p_warn(
-                    f"  {col}: {sd_gap:.1f} SD gap between {attr} groups  "
-                    f"[{low_g}={sorted_groups[0][1]['mean']:.1f} vs "
-                    f"{high_g}={sorted_groups[-1][1]['mean']:.1f}]"
-                )
-                if results["status"] == "PASS":
-                    results["status"] = "WARN"
-                results["issues"].append(
-                    f"{col} recorded with {sd_gap:.1f} SD gap between {attr} groups"
-                )
-                entry["flagged"] = True
-            else:
-                p_pass(f"  {col}: {sd_gap:.2f} SD gap  (within threshold)")
-
-            results["distributions"].append(entry)
-
-    return results
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# LAYER 5 — FAIRNESS OVER TIME (DRIFT DETECTION)
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def layer5(l1_results, history_path, output_dir):
-    """Compare current fairness metrics to previous run for drift detection."""
-    section_header(5, "Fairness Over Time — Drift Detection")
-
-    results = {"status": "PASS", "trends": {}, "issues": []}
-
-    # ── Save current results to history file ─────────────────────────
-    history_out = os.path.join(output_dir, "fairsight_history.json")
-    current_snapshot = {
-        "timestamp": datetime.now().isoformat(),
-        "metrics": l1_results.get("metrics", {}),
-    }
-
-    history_data = []
-    if os.path.exists(history_out):
+    # FIX-07: SHAP only when safe
+    if HAS_SKLEARN and HAS_SHAP and not trivial:
         try:
-            with open(history_out, "r") as f:
-                history_data = json.load(f)
-            if not isinstance(history_data, list):
-                history_data = [history_data]
-        except Exception:
-            history_data = []
+            fcols = [c for c in df.columns if c not in protected_attrs and c != target and c not in binned_orig]
+            X = df[fcols].copy(); y = df[target].values
+            if len(np.unique(y)) >= 2 and len(y) >= 10:
+                for c in X.select_dtypes(include=["object","category"]).columns:
+                    X[c] = LabelEncoder().fit_transform(X[c].astype(str))
+                X = X.fillna(X.median(numeric_only=True))
+                clf = GradientBoostingClassifier(n_estimators=50,max_depth=3,random_state=42)
+                clf.fit(X, y)
+                expl = shap.TreeExplainer(clf)
+                sv = expl.shap_values(X)
+                mshap = np.abs(sv).mean(axis=0)
+                ranking = sorted(zip(fcols, mshap), key=lambda x: x[1], reverse=True)
+                res["shap_top"] = [{"feature":f,"mean_abs_shap":round(float(s),4)} for f,s in ranking[:5]]
+                print(); p_info("Top 5 features by SHAP importance:")
+                for i,(f,v) in enumerate(ranking[:5],1):
+                    flag = f" {Fore.RED}← PROXY{Style.RESET_ALL}" if any(px["feature"]==f for px in all_px) else ""
+                    print(f"    {i}. {f:25s}  SHAP={v:.4f}{flag}")
+            else:
+                p_skip("SHAP: need ≥2 target classes and ≥10 rows")
+        except Exception as e:
+            p_warn(f"SHAP failed: {e}")
+    elif not HAS_SHAP:
+        p_skip("SHAP not installed — pip install shap")
+    return res
 
-    # ── Load separate history file if provided ───────────────────────
+# ══════════════════════════════════════════════════════════════════
+# LAYER 4
+# ══════════════════════════════════════════════════════════════════
+def layer4(df, protected_attrs, target, binned_orig=None, min_size=5):
+    shdr(4, "Feature Distribution Analysis")
+    binned_orig = binned_orig or set()
+    res = {"status":"PASS","distributions":[],"issues":[]}
+    num_cols = [c for c in df.select_dtypes(include=np.number).columns
+                if c not in protected_attrs and c != target and c not in binned_orig]
+    if not num_cols: p_skip("No numeric non-protected columns."); return res
+
+    for attr in protected_attrs:
+        groups = df[attr].dropna().unique()
+        valid  = [g for g in groups if (df[attr]==g).sum() >= min_size]
+        if len(valid) < 2: p_skip(f"'{attr}': <2 groups with ≥{min_size} samples"); continue
+        print(f"\n  {Style.BRIGHT}Distribution gaps across: {attr}{Style.RESET_ALL}")
+        for col in num_cols:
+            # FIX-10: skip zero-variance columns
+            if df[col].std() == 0: p_skip(f"  '{col}': zero variance"); continue
+            gstats = {}
+            for g in valid:
+                vals = df.loc[df[attr]==g, col].dropna()
+                if len(vals) == 0: continue
+                gstats[str(g)] = {"mean":round(float(vals.mean()),2),"std":round(float(vals.std()),2),"n":int(len(vals))}
+            if len(gstats) < 2: continue
+            means = [s["mean"] for s in gstats.values()]
+            stds  = [s["std"]  for s in gstats.values() if s["std"] > 0]
+            if not stds: p_skip(f"  '{col}': all groups zero std"); continue
+            diff = max(means)-min(means); pstd = float(np.mean(stds)); sdg = diff/pstd
+            entry = {"feature":col,"protected_attr":attr,"group_stats":gstats,
+                     "max_mean_diff":round(diff,2),"pooled_std":round(pstd,2),"sd_gap":round(sdg,2)}
+            if sdg > DISTRIBUTION_SD_GAP:
+                sg = sorted(gstats.items(), key=lambda x: x[1]["mean"])
+                p_warn(f"  '{col}': {sdg:.1f} SD gap  [{sg[0][0]}={sg[0][1]['mean']} vs {sg[-1][0]}={sg[-1][1]['mean']}]")
+                if res["status"] == "PASS": res["status"] = "WARN"
+                entry["flagged"] = True; res["issues"].append(f"'{col}' {sdg:.1f} SD gap across {attr}")
+            else:
+                p_pass(f"  '{col}': {sdg:.2f} SD gap")
+            res["distributions"].append(entry)
+    if not res["issues"]: p_pass("No significant distribution gaps found.")
+    return res
+
+# ══════════════════════════════════════════════════════════════════
+# LAYER 5
+# ══════════════════════════════════════════════════════════════════
+def layer5(l1, history_path, output_dir):
+    shdr(5, "Fairness Drift Over Time")
+    res = {"status":"PASS","trends":{},"issues":[]}
+    hist_out = os.path.join(output_dir, "fairsight_history.json")
+    snapshot = {"timestamp":datetime.now().isoformat(),"metrics":l1.get("metrics",{})}
+    hist = []
+    if os.path.exists(hist_out):
+        try:
+            with open(hist_out) as f: loaded = json.load(f)
+            hist = loaded if isinstance(loaded, list) else [loaded]
+        except Exception: hist = []
     prev = None
     if history_path and os.path.exists(history_path):
         try:
-            with open(history_path, "r") as f:
-                loaded = json.load(f)
-            if isinstance(loaded, list) and len(loaded) > 0:
-                prev = loaded[-1]  # most recent
-            elif isinstance(loaded, dict):
-                prev = loaded
-            p_info(f"Loaded previous results from: {history_path}")
-        except Exception as exc:
-            p_warn(f"Could not load history file: {exc}")
-    elif not history_path:
-        # Try auto-loading from default history
-        if len(history_data) > 0:
-            prev = history_data[-1]
-            p_info(f"Auto-loaded previous run from: {history_out}")
+            with open(history_path) as f: loaded = json.load(f)
+            prev = loaded[-1] if isinstance(loaded, list) else loaded
+            p_info(f"Loaded history: {history_path}")
+        except Exception as e: p_warn(f"Could not load history: {e}")
+    elif hist:
+        prev = hist[-1]; p_info(f"Auto-loaded previous run from: {hist_out}")
 
     if prev is None:
-        p_info("No previous results available — cannot compute drift.")
-        results["status"] = "PASS"
-        results["issues"].append("No history file provided")
-
-        # Append and save
-        history_data.append(current_snapshot)
-        with open(history_out, "w") as f:
-            json.dump(history_data, f, indent=2, cls=NumpyEncoder)
-        p_info(f"Current results saved to: {history_out}")
-        return results
-
-    # ── Compare DI values ────────────────────────────────────────────
-    prev_metrics = prev.get("metrics", {})
-    curr_metrics = l1_results.get("metrics", {})
-    prev_ts = prev.get("timestamp", "unknown")
-
-    p_info(f"Comparing against run from: {prev_ts}")
-    print()
-
-    for attr, curr_m in curr_metrics.items():
-        curr_di = curr_m.get("disparate_impact", {}).get("value")
-        prev_di = prev_metrics.get(attr, {}).get("disparate_impact", {}).get("value")
-
-        if curr_di is None or prev_di is None:
-            continue
-
-        delta = curr_di - prev_di
-        if delta > 0.01:
-            trend = "improving ↑"
-        elif delta < -0.01:
-            trend = "degrading ↓"
-        else:
-            trend = "stable ─"
-
-        trend_entry = {
-            "attr": attr,
-            "current_di": round(curr_di, 4),
-            "previous_di": round(prev_di, 4),
-            "delta": round(delta, 4),
-            "trend": trend,
-        }
-        results["trends"][attr] = trend_entry
-
-        if delta < -DRIFT_THRESHOLD:
-            p_fail(
-                f"DI on {attr}: {prev_di:.4f} → {curr_di:.4f}  "
-                f"(Δ={delta:+.4f}, {trend})  ⚠ DEGRADED"
-            )
-            results["status"] = "WARN"
-            results["issues"].append(
-                f"DI on {attr} degraded by {abs(delta):.3f}"
-            )
-        else:
-            indicator = Fore.GREEN if "improving" in trend else Fore.YELLOW if "stable" in trend else Fore.RED
-            p_pass(
-                f"DI on {attr}: {prev_di:.4f} → {curr_di:.4f}  "
-                f"(Δ={delta:+.4f}, {indicator}{trend}{Style.RESET_ALL})"
-            )
-
-    # Save updated history
-    history_data.append(current_snapshot)
-    with open(history_out, "w") as f:
-        json.dump(history_data, f, indent=2, cls=NumpyEncoder)
-    p_info(f"Current results appended to: {history_out}")
-
-    return results
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# LAYER 6 — VERDICT & RECOMMENDATIONS
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def layer6(l1, l2, l3, l4, l5):
-    """Generate overall verdict, plain-English explanations, and recommendations."""
-    section_header(6, "Human-Readable Verdict & Recommendations")
-
-    results = {"recommendations": [], "explanations": []}
-
-    # ── Explanations + recommendations for Layer 1 failures ──────────
-    for attr, metrics in l1.get("metrics", {}).items():
-        di_info = metrics.get("disparate_impact", {})
-        if di_info.get("pass") is False:
-            val = di_info["value"]
-            priv = di_info.get("privileged", "unknown")
-            explanation = (
-                f"Disparate Impact on '{attr}' is {val:.2f} (threshold: {DI_THRESHOLD}).\n"
-                f"    This means the unprivileged group receives positive outcomes at only "
-                f"{val:.0%} the rate\n"
-                f"    of the privileged group ('{priv}'). This falls below the 80% rule\n"
-                f"    used in US federal guidelines for adverse impact."
-            )
-            rec = (
-                f"Apply reweighting or SMOTE to balance training data for '{attr}'. "
-                f"Consider collecting more representative data."
-            )
-            print(f"  {Fore.RED}▸{Style.RESET_ALL} {explanation}")
-            p_rec(rec)
-            print()
-            results["explanations"].append(explanation)
-            results["recommendations"].append(rec)
-
-        dp_info = metrics.get("demographic_parity", {})
-        if dp_info.get("pass") is False:
-            val = dp_info["value"]
-            explanation = (
-                f"Demographic Parity Gap on '{attr}' is {val:+.4f} (threshold: ±{DP_THRESHOLD}).\n"
-                f"    The rate of positive outcomes differs significantly between groups,\n"
-                f"    indicating the decision process is not group-blind."
-            )
-            rec = (
-                f"Apply threshold adjustment or post-processing calibration "
-                f"to equalize positive outcome rates across '{attr}' groups."
-            )
-            print(f"  {Fore.RED}▸{Style.RESET_ALL} {explanation}")
-            p_rec(rec)
-            print()
-            results["explanations"].append(explanation)
-            results["recommendations"].append(rec)
-
-        eod_info = metrics.get("equal_opportunity", {})
-        if eod_info.get("pass") is False:
-            val = eod_info["value"]
-            explanation = (
-                f"Equal Opportunity Difference on '{attr}' is {val:+.4f} (threshold: ±{EO_THRESHOLD}).\n"
-                f"    Among truly qualified individuals, the model's true positive rate\n"
-                f"    differs between groups — meaning qualified people in one group are\n"
-                f"    less likely to be correctly identified."
-            )
-            rec = (
-                f"Retrain the model with equalized odds constraints or apply "
-                f"post-hoc calibration to equalize TPR across '{attr}' groups."
-            )
-            print(f"  {Fore.RED}▸{Style.RESET_ALL} {explanation}")
-            p_rec(rec)
-            print()
-            results["explanations"].append(explanation)
-            results["recommendations"].append(rec)
-
-        ppd_info = metrics.get("predictive_parity", {})
-        if ppd_info.get("pass") is False:
-            val = ppd_info["value"]
-            explanation = (
-                f"Predictive Parity Difference on '{attr}' is {val:+.4f} (threshold: ±{PP_THRESHOLD}).\n"
-                f"    The precision (positive predictive value) of the model differs\n"
-                f"    between groups — positive predictions are less reliable for one group."
-            )
-            rec = (
-                f"Apply calibration or threshold adjustment to equalize PPV "
-                f"across '{attr}' groups."
-            )
-            print(f"  {Fore.RED}▸{Style.RESET_ALL} {explanation}")
-            p_rec(rec)
-            print()
-            results["explanations"].append(explanation)
-            results["recommendations"].append(rec)
-
-    # ── Recommendations for intersectional issues ────────────────────
-    if l2.get("worst"):
-        wg = l2["worst"]
-        explanation = (
-            f"Intersectional bias detected: subgroup '{wg['subgroup']}' has a positive\n"
-            f"    outcome rate of {wg['rate']:.1%}, deviating {wg['deviation']:.1%} from the overall rate.\n"
-            f"    Bias may not be visible when looking at individual attributes alone."
-        )
-        rec = (
-            f"Perform targeted data augmentation for the '{wg['subgroup']}' subgroup "
-            f"and monitor intersectional metrics separately."
-        )
-        print(f"  {Fore.YELLOW}▸{Style.RESET_ALL} {explanation}")
-        p_rec(rec)
-        print()
-        results["explanations"].append(explanation)
-        results["recommendations"].append(rec)
-
-    # ── Recommendations for proxy variables ──────────────────────────
-    for proxy in l3.get("proxies", [])[:3]:  # top 3
-        if proxy["risk"] == "HIGH":
-            explanation = (
-                f"Column '{proxy['feature']}' is a HIGH RISK proxy for "
-                f"'{proxy['protected_attr']}'\n"
-                f"    (correlation: {proxy['correlation']:.4f}). The model could use this\n"
-                f"    feature to reconstruct protected group membership."
-            )
-            rec = (
-                f"Remove or decorrelate column '{proxy['feature']}' before training. "
-                f"Consider using adversarial debiasing."
-            )
-            print(f"  {Fore.RED}▸{Style.RESET_ALL} {explanation}")
-            p_rec(rec)
-            print()
-            results["explanations"].append(explanation)
-            results["recommendations"].append(rec)
-        elif proxy["risk"] == "MEDIUM":
-            explanation = (
-                f"Column '{proxy['feature']}' is a MEDIUM RISK proxy for "
-                f"'{proxy['protected_attr']}'\n"
-                f"    (correlation: {proxy['correlation']:.4f}). Moderate association detected."
-            )
-            rec = (
-                f"Monitor '{proxy['feature']}' — consider decorrelation or removal if "
-                f"fairness cannot be achieved otherwise."
-            )
-            print(f"  {Fore.YELLOW}▸{Style.RESET_ALL} {explanation}")
-            p_rec(rec)
-            print()
-            results["explanations"].append(explanation)
-            results["recommendations"].append(rec)
-
-    # ── Recommendations for distribution gaps ────────────────────────
-    for dist in l4.get("distributions", []):
-        if dist.get("flagged"):
-            explanation = (
-                f"Feature '{dist['feature']}' is recorded with a {dist['sd_gap']:.1f} SD gap\n"
-                f"    between '{dist['protected_attr']}' groups. This suggests the data\n"
-                f"    collection process may differ across groups."
-            )
-            rec = (
-                f"Investigate data collection process for '{dist['feature']}'. "
-                f"Consider standardization or separate calibration per group."
-            )
-            print(f"  {Fore.YELLOW}▸{Style.RESET_ALL} {explanation}")
-            p_rec(rec)
-            print()
-            results["explanations"].append(explanation)
-            results["recommendations"].append(rec)
-
-    # ── Recommendations for drift ────────────────────────────────────
-    for attr, trend in l5.get("trends", {}).items():
-        if "degrading" in trend.get("trend", ""):
-            explanation = (
-                f"Fairness on '{attr}' has degraded since the last run.\n"
-                f"    Disparate Impact dropped from {trend['previous_di']:.4f} to "
-                f"{trend['current_di']:.4f} (Δ={trend['delta']:+.4f})."
-            )
-            rec = (
-                f"Retrain model — fairness has degraded over time for '{attr}'. "
-                f"Investigate recent data or model changes."
-            )
-            print(f"  {Fore.RED}▸{Style.RESET_ALL} {explanation}")
-            p_rec(rec)
-            print()
-            results["explanations"].append(explanation)
-            results["recommendations"].append(rec)
-
-    if not results["recommendations"]:
-        p_pass("No actionable recommendations — all metrics within acceptable bounds.")
-
-    return results
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# SUMMARY TABLE & FINAL VERDICT
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def print_summary(l1, l2, l3, l4, l5, l6):
-    """Print the final summary table and overall verdict."""
-
-    print(f"\n{Fore.CYAN}{Style.BRIGHT}{'═' * 62}")
-    print(f"  FINAL SUMMARY")
-    print(f"{'═' * 62}{Style.RESET_ALL}\n")
-
-    layers = [
-        ("L1", "Fairness Metrics", l1),
-        ("L2", "Intersectional", l2),
-        ("L3", "Proxy Detection", l3),
-        ("L4", "Distribution", l4),
-        ("L5", "Drift Detection", l5),
-    ]
-
-    # Table header
-    print(f"  {'Layer':<6}{'Component':<22}{'Status':<10}{'Issues Found'}")
-    print(f"  {'─' * 6}{'─' * 22}{'─' * 10}{'─' * 24}")
-
-    fails = 0
-    warns = 0
-
-    for tag, name, res in layers:
-        status = res.get("status", "PASS")
-        issues = res.get("issues", [])
-        issue_str = "; ".join(issues[:2]) if issues else "—"
-        if len(issues) > 2:
-            issue_str += f" (+{len(issues)-2} more)"
-
-        if status == "FAIL":
-            color = Fore.RED
-            fails += 1
-        elif status == "WARN":
-            color = Fore.YELLOW
-            warns += 1
-        elif status == "SKIP":
-            color = Fore.CYAN
-        else:
-            color = Fore.GREEN
-
-        print(
-            f"  {tag:<6}{name:<22}"
-            f"{color}{status:<10}{Style.RESET_ALL}"
-            f"{issue_str}"
-        )
-
-    # Layer 6 row
-    n_recs = len(l6.get("recommendations", []))
-    print(
-        f"  {'L6':<6}{'Recommendations':<22}"
-        f"{Fore.CYAN}{'—':<10}{Style.RESET_ALL}"
-        f"{n_recs} recommendation(s) generated"
-    )
-
-    # ── Overall verdict ──────────────────────────────────────────────
-    print(f"\n  {'─' * 56}")
-
-    if fails > 0:
-        verdict = "BIASED"
-        icon = "❌"
-        color = Fore.RED
-    elif warns > 0:
-        verdict = "BORDERLINE"
-        icon = "⚠️"
-        color = Fore.YELLOW
+        p_skip("No previous run found — saving snapshot for next comparison.")
+        res["issues"].append("No history available")
     else:
-        verdict = "UNBIASED"
-        icon = "✅"
-        color = Fore.GREEN
+        pm = prev.get("metrics",{}); cm = l1.get("metrics",{})
+        p_info(f"Comparing against: {prev.get('timestamp','unknown')}"); print()
+        for attr, m in cm.items():
+            if m.get("skipped"): continue
+            cdi = m.get("disparate_impact",{}).get("value")
+            pdi = pm.get(attr,{}).get("disparate_impact",{}).get("value")
+            if cdi is None or pdi is None: continue
+            delta = cdi - pdi
+            trend = ("improving ↑" if delta > 0.01 else "degrading ↓" if delta < -0.01 else "stable ─")
+            res["trends"][attr] = {"attr":attr,"current_di":round(cdi,4),"previous_di":round(pdi,4),
+                                    "delta":round(delta,4),"trend":trend}
+            if delta < -DRIFT_THRESHOLD:
+                p_fail(f"DI on '{attr}': {pdi:.4f} → {cdi:.4f}  (Δ={delta:+.4f}, {trend})")
+                res["status"] = "WARN"; res["issues"].append(f"DI on '{attr}' degraded {abs(delta):.3f}")
+            else:
+                col = Fore.GREEN if "improving" in trend else Fore.YELLOW
+                p_pass(f"DI on '{attr}': {pdi:.4f} → {cdi:.4f}  (Δ={delta:+.4f}, {col}{trend}{Style.RESET_ALL})")
 
-    summary_parts = []
-    if fails:
-        summary_parts.append(f"{fails} layer(s) failed")
-    if warns:
-        summary_parts.append(f"{warns} warning(s)")
-    summary_str = ", ".join(summary_parts) if summary_parts else "All layers passed"
+    hist.append(snapshot)
+    try:
+        with open(hist_out,"w") as f: json.dump(hist, f, indent=2, cls=NumpyEncoder)
+        p_info(f"Snapshot saved → {hist_out}")
+    except Exception as e: p_warn(f"Could not save history: {e}")
+    return res
 
-    print(
-        f"\n  {Style.BRIGHT}OVERALL: {color}{icon}  {verdict}{Style.RESET_ALL}"
-        f"  — {summary_str}"
-    )
-    print()
+# ══════════════════════════════════════════════════════════════════
+# LAYER 6
+# ══════════════════════════════════════════════════════════════════
+def layer6(l1, l2, l3, l4, l5):
+    shdr(6, "Human-Readable Verdict & Recommendations")
+    res = {"recommendations":[],"explanations":[]}
 
+    def emit(color, expl, rec):
+        print(f"  {color}▸{Style.RESET_ALL} {expl}")
+        p_rec(rec); print()
+        res["explanations"].append(expl); res["recommendations"].append(rec)
+
+    for attr, m in l1.get("metrics",{}).items():
+        if m.get("skipped"): continue
+        di = m.get("disparate_impact",{})
+        if di.get("pass") is False:
+            emit(Fore.RED,
+                f"Disparate Impact on '{attr}' = {di['value']:.2f} (threshold {DI_THRESHOLD}).\n"
+                f"    Unprivileged group gets positive outcomes at only {di['value']:.0%} the rate of "
+                f"privileged group ('{di.get('privileged','?')}').",
+                f"Apply reweighting or SMOTE to balance data for '{attr}'.")
+        dp = m.get("demographic_parity",{})
+        if dp.get("pass") is False:
+            emit(Fore.RED,
+                f"Demographic Parity Gap on '{attr}' = {dp['value']:+.4f}  (threshold ±{DP_THRESHOLD}).\n"
+                f"    Outcome rates differ significantly between groups.",
+                f"Apply threshold adjustment to equalise positive rates across '{attr}' groups.")
+        eod = m.get("equal_opportunity",{})
+        if eod.get("pass") is False:
+            emit(Fore.RED,
+                f"Equal Opportunity Diff on '{attr}' = {eod['value']:+.4f}  (threshold ±{EO_THRESHOLD}).\n"
+                f"    Qualified individuals in one group are less likely to be identified correctly.",
+                f"Retrain with equalized-odds constraints or post-hoc calibrate TPR for '{attr}'.")
+        ppd = m.get("predictive_parity",{})
+        if ppd.get("pass") is False:
+            emit(Fore.RED,
+                f"Predictive Parity Diff on '{attr}' = {ppd['value']:+.4f}  (threshold ±{PP_THRESHOLD}).\n"
+                f"    Model precision differs between groups.",
+                f"Calibrate model or adjust thresholds to equalise PPV across '{attr}' groups.")
+
+    if l2.get("worst") and not l2["worst"].get("small_sample"):
+        wg = l2["worst"]
+        emit(Fore.YELLOW,
+            f"Intersectional bias: '{wg['subgroup']}' rate={wg['rate']:.1%}, "
+            f"deviates {wg['deviation']:.1%} from overall.\n"
+            f"    Not visible when looking at individual attributes alone.",
+            f"Augment data for '{wg['subgroup']}' and monitor intersectional metrics separately.")
+
+    for px in l3.get("proxies",[])[:3]:
+        col = Fore.RED if px["risk"]=="HIGH" else Fore.YELLOW
+        emit(col,
+            f"'{px['feature']}' is a {px['risk']} RISK proxy for '{px['protected_attr']}' "
+            f"(r={px['correlation']:.4f}).\n    The model can reconstruct group membership indirectly.",
+            f"{'Remove' if px['risk']=='HIGH' else 'Investigate'} '{px['feature']}' before training.")
+
+    for d in l4.get("distributions",[]):
+        if d.get("flagged"):
+            emit(Fore.YELLOW,
+                f"'{d['feature']}' has {d['sd_gap']:.1f} SD gap across '{d['protected_attr']}' groups.\n"
+                f"    Data collection may differ systematically between groups.",
+                f"Audit collection for '{d['feature']}'. Consider per-group normalisation.")
+
+    for attr, t in l5.get("trends",{}).items():
+        if "degrading" in t.get("trend",""):
+            emit(Fore.RED,
+                f"Fairness drift on '{attr}': DI {t['previous_di']:.4f} → {t['current_di']:.4f}.",
+                f"Retrain — fairness degraded for '{attr}' since last run.")
+
+    if not res["recommendations"]: p_pass("No actionable recommendations — all metrics within bounds.")
+    return res
+
+# ══════════════════════════════════════════════════════════════════
+# SUMMARY
+# ══════════════════════════════════════════════════════════════════
+
+# ══════════════════════════════════════════════════════════════════
+# ADAPTIVE BIAS SCORE (Layer 7)
+# ══════════════════════════════════════════════════════════════════
+def compute_bias_score(df, l1, l2, l3, l4, protected_attrs, domain="generic"):
+    n = len(df)
+    w = DOMAIN_WEIGHTS.get(domain, DOMAIN_WEIGHTS["generic"]).copy()
+
+    # Size reliability: DI & intersect less reliable on small datasets
+    for metric in ("DI", "intersect"):
+        factor = (0.2 if n < 100 else 0.5 if n < 500 else 0.8 if n < 2000 else 1.0)
+        w[metric] *= factor
+
+    # Group imbalance: downweight intersect if heavily imbalanced
+    if protected_attrs:
+        shares = df[protected_attrs[0]].dropna().value_counts(normalize=True)
+        min_share = float(shares.min()) if len(shares) > 0 else 0
+        factor = (0.3 if min_share < 0.05 else 0.6 if min_share < 0.15
+                  else 0.85 if min_share < 0.30 else 1.0)
+        w["intersect"] *= factor
+
+    # Renormalise to sum=1.0
+    total = sum(w.values())
+    w = {k: v/total for k, v in w.items()}
+
+    # ── Raw severities (0–100) ─────────────────────────────────────
+    # DI: worst across all attrs
+    di_vals = [m.get("disparate_impact",{}).get("value")
+               for m in l1.get("metrics",{}).values()
+               if not m.get("skipped") and m.get("disparate_impact",{}).get("value") is not None]
+    worst_di  = min(di_vals) if di_vals else 0.8
+    di_sev    = max(0, (0.8 - worst_di) / 0.8) * 100
+
+    # DP: worst gap
+    dp_vals = [abs(m.get("demographic_parity",{}).get("value",0))
+               for m in l1.get("metrics",{}).values()
+               if not m.get("skipped") and m.get("demographic_parity",{}).get("value") is not None]
+    dp_sev = min(max(dp_vals) / 0.5, 1.0) * 100 if dp_vals else 0
+
+    # Proxy: count
+    proxy_sev = min(len(l3.get("proxies",[])) / 5.0, 1.0) * 100
+
+    # Distribution: worst SD gap
+    sd_gaps   = [d.get("sd_gap",0) for d in l4.get("distributions",[]) if d.get("flagged")]
+    dist_sev  = min(max(sd_gaps) / 3.0, 1.0) * 100 if sd_gaps else 0
+
+    # Intersectional: worst deviation
+    worst_dev  = l2.get("worst",{}).get("deviation",0) if l2.get("worst") else 0
+    inter_sev  = min(worst_dev / 0.5, 1.0) * 100
+
+    # Label bias placeholder (0 — not in v2.1)
+    label_sev = 0
+
+    severities = {"DI":round(di_sev,1),"DP":round(dp_sev,1),
+                  "proxy":round(proxy_sev,1),"label":label_sev,
+                  "dist":round(dist_sev,1),"intersect":round(inter_sev,1)}
+
+    score        = round(sum(w[k]*severities[k] for k in w), 1)
+    contributions = {k: round(w[k]*severities[k],1) for k in w}
+    primary      = max(contributions, key=contributions.get)
+
+    # Quick win
+    quick_wins = sorted([(v,k,round(score-v,1)) for k,v in contributions.items() if v>0], reverse=True)
+    qw = quick_wins[0] if quick_wins else None
+
+    labels = {"DI":"Disparate Impact","DP":"Demog. Parity","proxy":"Proxy vars",
+              "label":"Label bias","dist":"Distribution","intersect":"Intersectional"}
+
+    if score <= 15:   verdict,icon,vcol = "CLEAN",           "✅", Fore.GREEN
+    elif score <= 35: verdict,icon,vcol = "MINOR ISSUES",    "🟡", Fore.YELLOW
+    elif score <= 55: verdict,icon,vcol = "MODERATE BIAS",   "🟠", Fore.YELLOW
+    elif score <= 75: verdict,icon,vcol = "SIGNIFICANT BIAS","🔴", Fore.RED
+    else:             verdict,icon,vcol = "SEVERELY BIASED", "❌", Fore.RED
+
+    return {"score":score,"verdict":verdict,"domain":domain,
+            "weights":w,"severities":severities,"contributions":contributions,
+            "primary_driver":primary,"quick_win":qw,"labels":labels,
+            "vcol":vcol,"icon":icon}
+
+def print_summary(l1, l2, l3, l4, l5, l6):
+    print(f"\n{Fore.CYAN}{Style.BRIGHT}{'═'*62}\n  FINAL SUMMARY\n{'═'*62}{Style.RESET_ALL}\n")
+    layers = [("L1","Fairness Metrics",l1),("L2","Intersectional",l2),
+              ("L3","Proxy Detection",l3),("L4","Distribution",l4),("L5","Drift Detection",l5)]
+    print(f"  {'Layer':<6}{'Component':<22}{'Status':<12}{'Issues'}")
+    print(f"  {'─'*6}{'─'*22}{'─'*12}{'─'*26}")
+    fails = warns = 0
+    for tag, name, r in layers:
+        st = r.get("status","PASS"); iss = r.get("issues",[])
+        istr = ("; ".join(iss[:2]) + (f" (+{len(iss)-2} more)" if len(iss)>2 else "")) if iss else "—"
+        col = (Fore.RED if st=="FAIL" else Fore.YELLOW if st=="WARN" else Fore.CYAN if st=="SKIP" else Fore.GREEN)
+        if st=="FAIL": fails+=1
+        if st=="WARN": warns+=1
+        print(f"  {tag:<6}{name:<22}{col}{st:<12}{Style.RESET_ALL}{istr}")
+    nr = len(l6.get("recommendations",[]))
+    print(f"  {'L6':<6}{'Recommendations':<22}{Fore.CYAN}{'—':<12}{Style.RESET_ALL}{nr} recommendation(s)")
+    print(f"\n  {'─'*58}")
+    if fails>0:   verdict,icon,col = "BIASED",    "❌", Fore.RED
+    elif warns>0: verdict,icon,col = "BORDERLINE","⚠ ", Fore.YELLOW
+    else:         verdict,icon,col = "UNBIASED",  "✅", Fore.GREEN
+    parts = []
+    if fails: parts.append(f"{fails} layer(s) failed")
+    if warns: parts.append(f"{warns} warning(s)")
+    summ = ", ".join(parts) if parts else "All layers passed"
+    print(f"\n  {Style.BRIGHT}OVERALL: {col}{icon}  {verdict}{Style.RESET_ALL}  — {summ}\n")
     return verdict
 
+def print_bias_score(bs):
+    """Print the adaptive bias score block after the summary."""
+    score   = bs["score"]
+    vcol    = bs["vcol"]
+    verdict = bs["verdict"]
+    icon    = bs["icon"]
+    labels  = bs["labels"]
+    contrib = bs["contributions"]
+    primary = bs["primary_driver"]
+    qw      = bs["quick_win"]
+    domain  = bs["domain"]
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# SAVE ALL RESULTS
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def save_results(verdict, l1, l2, l3, l4, l5, l6, output_dir):
-    """Save comprehensive results to JSON."""
-    out_path = os.path.join(output_dir, "fairsight_results.json")
+    print(f"\n{Fore.CYAN}{Style.BRIGHT}{'═'*62}")
+    print(f"  BIAS SCORE  (domain={domain})")
+    print(f"{'═'*62}{Style.RESET_ALL}\n")
 
-    payload = {
-        "fairsight_version": "1.0.0",
-        "timestamp": datetime.now().isoformat(),
-        "overall_verdict": verdict,
-        "layer1_fairness_metrics": l1,
-        "layer2_intersectional": l2,
-        "layer3_proxy_detection": l3,
-        "layer4_distribution": l4,
-        "layer5_drift": l5,
-        "layer6_recommendations": l6,
-    }
+    # Bar chart of contributions
+    for k, wv in bs["weights"].items():
+        sev   = bs["severities"][k]
+        c     = contrib[k]
+        bar   = "█" * int(c / 2)   # 2% per block
+        lname = labels.get(k, k)
+        print(f"  {lname:<22}  sev={sev:5.1f}  contrib={c:4.1f}%  {bar}")
 
-    with open(out_path, "w") as f:
-        json.dump(payload, f, indent=2, cls=NumpyEncoder)
+    print()
 
-    p_info(f"Full results saved to: {out_path}")
+    # Score gauge
+    gauge_filled = int(score / 5)   # 20 chars = 100%
+    gauge_empty  = 20 - gauge_filled
+    gauge_col    = Fore.GREEN if score<=35 else Fore.YELLOW if score<=55 else Fore.RED
+    gauge = f"{gauge_col}{'█'*gauge_filled}{Style.RESET_ALL}{'░'*gauge_empty}"
+    print(f"  Score  [{gauge}]  {vcol}{Style.BRIGHT}{score:.1f} / 100{Style.RESET_ALL}")
+    print(f"  Verdict  →  {vcol}{Style.BRIGHT}{icon}  {verdict}{Style.RESET_ALL}")
 
+    # Primary driver + quick win
+    print(f"\n  Primary driver  : {labels.get(primary,primary)} ({contrib.get(primary,0):.1f}% of score)")
+    if qw:
+        fix_lbl = labels.get(qw[1], qw[1])
+        print(f"  Quick win       : Fix '{fix_lbl}' → score {score:.1f}% → {qw[2]:.1f}%")
+    print()
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# MAIN
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def main():
-    init(autoreset=False)  # colorama
-
-    parser = argparse.ArgumentParser(
-        description="FairSight CLI — Terminal-based bias detection tool",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=(
-            "Examples:\n"
-            "  python fairsight.py --csv data.csv\n"
-            "  python fairsight.py --csv data.csv --target loan_approved\n"
-            "  python fairsight.py --csv data.csv --history prev_results.json\n"
-        ),
-    )
-    parser.add_argument("--csv", required=True, help="Path to CSV file to analyze")
-    parser.add_argument("--target", default=None, help="Target/outcome column name (default: last column)")
-    parser.add_argument("--history", default=None, help="Path to previous results JSON for drift detection")
-    args = parser.parse_args()
-
-    # ── Validate input ───────────────────────────────────────────────
-    if not os.path.exists(args.csv):
-        print(f"{Fore.RED}Error: File '{args.csv}' not found.{Style.RESET_ALL}")
-        sys.exit(1)
-
-    output_dir = os.path.dirname(os.path.abspath(args.csv))
-
-    # ── Load data ────────────────────────────────────────────────────
-    banner()
+def save_results(verdict, l1, l2, l3, l4, l5, l6, output_dir, bs=None):
+    out = os.path.join(output_dir, "fairsight_results.json")
     try:
-        df = pd.read_csv(args.csv)
-    except Exception as e:
-        print(f"{Fore.RED}Error reading CSV: {e}{Style.RESET_ALL}")
-        sys.exit(1)
+        with open(out,"w") as f:
+            payload = {"fairsight_version":"2.1.0","timestamp":datetime.now().isoformat(),
+                "overall_verdict":verdict,"layer1":l1,"layer2":l2,"layer3":l3,
+                "layer4":l4,"layer5":l5,"layer6":l6}
+            if bs: payload["bias_score"] = {"score":bs["score"],"verdict":bs["verdict"],"domain":bs["domain"],"contributions":bs["contributions"]}
+            json.dump(payload, f, indent=2, cls=NumpyEncoder)
+        p_info(f"Results saved → {out}")
+    except Exception as e: p_warn(f"Could not save results: {e}")
 
-    # ── Dataset overview ─────────────────────────────────────────────
-    print(f"  {Style.BRIGHT}Dataset:{Style.RESET_ALL} {args.csv}")
-    print(f"  {Style.BRIGHT}Rows:{Style.RESET_ALL}    {len(df):,}")
-    print(f"  {Style.BRIGHT}Columns:{Style.RESET_ALL} {len(df.columns)}")
-    print(f"  {Style.BRIGHT}Columns:{Style.RESET_ALL} {', '.join(df.columns)}")
+# ══════════════════════════════════════════════════════════════════
+# MAIN
+# ══════════════════════════════════════════════════════════════════
+def main():
+    init(autoreset=False)
+    ap = argparse.ArgumentParser(description="FairSight CLI v2 — robust bias detection for any CSV")
+    ap.add_argument("--file", required=True,
+        help="Path to dataset file (.csv .tsv .xlsx .parquet .json .xml etc)")
+    ap.add_argument("--target",  default=None)
+    ap.add_argument("--history", default=None)
+    ap.add_argument("--domain", default="generic",
+        choices=["finance","medical","hiring","criminal","generic"],
+        help="Domain context for adaptive bias score weights (default: generic)")
+    args = ap.parse_args()
 
-    # Handle missing values
-    missing_cols = df.columns[df.isnull().any()].tolist()
-    if missing_cols:
-        p_warn(f"Missing values in: {', '.join(missing_cols)}")
-        p_info("Missing numeric values will be imputed with median where needed.")
+    if not os.path.exists(args.file):
+        print(f"{Fore.RED}Error: '{args.file}' not found.{Style.RESET_ALL}"); sys.exit(1)
 
-    # ── Detect protected attributes ──────────────────────────────────
-    protected_attrs = detect_protected_attributes(df)
+    output_dir = writable_dir(os.path.dirname(os.path.abspath(args.file)))
+    banner()
+
+    try:    df = load_file(args.file)
+    except Exception as e: print(f"{Fore.RED}File read error: {e}{Style.RESET_ALL}"); sys.exit(1)
+
+    # FIX-7: normalise object columns that should be numeric (Excel/JSON artefact)
+    for _col in df.columns:
+        try:
+            converted = pd.to_numeric(df[_col], errors='raise')
+            if df[_col].dtype == object:
+                df[_col] = converted
+        except Exception:
+            pass
+
+    min_size = dynamic_min_size(len(df))
+    print(f"  {Style.BRIGHT}Dataset:{Style.RESET_ALL}      {args.file}")
+    print(f"  {Style.BRIGHT}Rows:{Style.RESET_ALL}         {len(df):,}")
+    print(f"  {Style.BRIGHT}Columns:{Style.RESET_ALL}      {len(df.columns)}  ({', '.join(df.columns)})")
+    print(f"  {Style.BRIGHT}Min group size:{Style.RESET_ALL} {min_size} (auto-scaled to dataset)")
+
+    miss = df.columns[df.isnull().any()].tolist()
+    if miss: p_warn(f"Missing values in: {', '.join(miss)}")
+
+    target = detect_target(df, args.target)
+    print(f"  {Style.BRIGHT}Target column:{Style.RESET_ALL}  {target}")
+
+    protected_attrs = [c for c in detect_protected(df) if c != target]
     if not protected_attrs:
-        print(f"\n{Fore.RED}  No protected attributes detected in column names.{Style.RESET_ALL}")
-        print(f"  Looked for keywords: {', '.join(PROTECTED_KEYWORDS)}")
-        print(f"  Your columns: {', '.join(df.columns)}")
-        sys.exit(1)
-    print(f"\n  {Style.BRIGHT}Protected attributes detected:{Style.RESET_ALL} {', '.join(protected_attrs)}")
+        print(f"{Fore.RED}No protected attributes found. Add columns named: {', '.join(PROTECTED_KEYWORDS)}{Style.RESET_ALL}"); sys.exit(1)
+    print(f"\n  {Style.BRIGHT}Protected attributes:{Style.RESET_ALL} {', '.join(protected_attrs)}")
 
-    # ── Detect target column (before binning, so auto-detect finds original last column) ──
-    target = detect_target_column(df, args.target)
-    print(f"  {Style.BRIGHT}Target column:{Style.RESET_ALL} {target}")
+    df, protected_attrs, binned_info = bin_numeric_protected(df, protected_attrs)
+    binned_orig = set(binned_info.keys())
 
-    # ── Bin numeric protected attributes (e.g. age → age_group) ──────
-    df, protected_attrs, binning_info = bin_numeric_protected(df, protected_attrs)
+    df, pos_label, trivial = binarise_target(df, target)
+    print(f"  {Style.BRIGHT}Positive label:{Style.RESET_ALL} '{pos_label}'")
+    print(f"  {Style.BRIGHT}Positive rate:{Style.RESET_ALL}  {df[target].mean():.1%}")
+    if trivial: p_warn("Trivial target — only distribution & proxy layers will be fully meaningful.")
 
-    # Ensure target is binary-like
-    unique_targets = df[target].nunique()
-    if unique_targets > 2:
-        if pd.api.types.is_numeric_dtype(df[target]):
-            p_warn(
-                f"Target '{target}' has {unique_targets} unique values. "
-                f"Binarizing at median for fairness metrics."
-            )
-            median_val = df[target].median()
-            df[target] = (df[target] >= median_val).astype(int)
-        else:
-            p_warn(
-                f"Target '{target}' has {unique_targets} unique string values. "
-                f"Selecting the most frequent as positive class."
-            )
-            top_val = df[target].mode()[0]
-            df[target] = (df[target] == top_val).astype(int)
-    elif unique_targets == 2:
-        # Ensure 0/1 encoding
-        vals = sorted(df[target].unique())
-        df[target] = df[target].map({vals[0]: 0, vals[1]: 1})
-    elif unique_targets == 1:
-        p_warn(f"Target '{target}' has only 1 unique value.")
-        df[target] = 1
+    l1 = layer1(df, protected_attrs, target, trivial, min_size)
+    l2 = layer2(df, protected_attrs, target, min_size)
+    l3 = layer3(df, protected_attrs, target, binned_orig, trivial, min_size)
+    l4 = layer4(df, protected_attrs, target, binned_orig, min_size)
+    l5 = layer5(l1, args.history, output_dir)
+    l6 = layer6(l1, l2, l3, l4, l5)
 
-    overall_rate = df[target].mean()
-    print(f"  {Style.BRIGHT}Overall positive rate:{Style.RESET_ALL} {overall_rate:.1%}")
-
-    # Track which original columns were binned so we exclude them from proxy/distribution analysis
-    binned_originals = set(binning_info.keys())
-
-    # ── Run all layers ───────────────────────────────────────────────
-    l1_results = layer1(df, protected_attrs, target)
-    l2_results = layer2(df, protected_attrs, target)
-    l3_results = layer3(df, protected_attrs, target, binned_originals)
-    l4_results = layer4(df, protected_attrs, target, binned_originals)
-    l5_results = layer5(l1_results, args.history, output_dir)
-    l6_results = layer6(l1_results, l2_results, l3_results, l4_results, l5_results)
-
-    # ── Final summary ────────────────────────────────────────────────
-    verdict = print_summary(l1_results, l2_results, l3_results, l4_results, l5_results, l6_results)
-
-    # ── Save results ─────────────────────────────────────────────────
-    save_results(verdict, l1_results, l2_results, l3_results, l4_results, l5_results, l6_results, output_dir)
-
-    print(f"{Fore.CYAN}{'━' * 62}{Style.RESET_ALL}\n")
-
+    verdict = print_summary(l1, l2, l3, l4, l5, l6)
+    bs = compute_bias_score(df, l1, l2, l3, l4, protected_attrs, domain=args.domain)
+    print_bias_score(bs)
+    save_results(verdict, l1, l2, l3, l4, l5, l6, output_dir, bs)
+    print(f"{Fore.CYAN}{'━'*62}{Style.RESET_ALL}\n")
 
 if __name__ == "__main__":
     main()

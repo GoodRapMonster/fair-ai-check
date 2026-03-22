@@ -1,94 +1,810 @@
 {
-  "fairsight_version": "2.0.0",
-  "timestamp": "2026-03-20T01:37:17.620461",
-  "overall_verdict": "UNBIASED",
+  "fairsight_version": "2.1.0",
+  "timestamp": "2026-03-22T14:08:17.554518",
+  "overall_verdict": "BIASED",
   "layer1": {
-    "status": "PASS",
+    "status": "FAIL",
     "metrics": {
-      "age": {
-        "skipped": true,
-        "reason": "insufficient_groups"
-      },
-      "marital_status": {
-        "skipped": true,
-        "reason": "insufficient_groups"
-      },
-      "race": {
-        "skipped": true,
-        "reason": "insufficient_groups"
+      "age_group": {
+        "disparate_impact": {
+          "value": 0.9036,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "18-25",
+          "priv_rate": 0.6667,
+          "unpriv_rate": 0.6024
+        },
+        "demographic_parity": {
+          "value": -0.0643,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": 0.0223,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_tpr": 0.8077,
+          "unpriv_tpr": 0.83
+        },
+        "predictive_parity": {
+          "value": -0.1001,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7241,
+          "unpriv_ppv": 0.6241
+        }
       },
       "gender": {
-        "skipped": true,
-        "reason": "insufficient_groups"
+        "disparate_impact": {
+          "value": 0.8632,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Male",
+          "priv_rate": 0.669,
+          "unpriv_rate": 0.5775
+        },
+        "demographic_parity": {
+          "value": -0.0915,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": -0.0545,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_tpr": 0.8594,
+          "unpriv_tpr": 0.8049
+        },
+        "predictive_parity": {
+          "value": -0.1118,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7082,
+          "unpriv_ppv": 0.5964
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 0.6345,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "White",
+          "priv_rate": 0.751,
+          "unpriv_rate": 0.4766
+        },
+        "demographic_parity": {
+          "value": -0.2745,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.3329,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.9558,
+          "unpriv_tpr": 0.623
+        },
+        "predictive_parity": {
+          "value": -0.2387,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7522,
+          "unpriv_ppv": 0.5135
+        }
       }
     },
-    "issues": []
+    "issues": [
+      "PPD=-0.10 on 'age_group'",
+      "PPD=-0.11 on 'gender'",
+      "DI=0.63 on 'race'",
+      "DP=-0.27 on 'race'",
+      "EOD=-0.33 on 'race'",
+      "PPD=-0.24 on 'race'"
+    ]
   },
   "layer2": {
-    "status": "PASS",
+    "status": "FAIL",
     "subgroups": [
       {
-        "intersection": "age \u00d7 marital_status",
-        "subgroup": "39+Never-married",
-        "n": 10,
-        "rate": 1.0,
-        "overall_rate": 1.0,
-        "deviation": 0.0
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "18-25+Female",
+        "n": 29,
+        "rate": 0.6207,
+        "overall_rate": 0.63,
+        "deviation": 0.0093
       },
       {
-        "intersection": "age \u00d7 race",
-        "subgroup": "39+White",
-        "n": 10,
-        "rate": 1.0,
-        "overall_rate": 1.0,
-        "deviation": 0.0
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "18-25+Male",
+        "n": 49,
+        "rate": 0.6939,
+        "overall_rate": 0.63,
+        "deviation": 0.0639
       },
       {
-        "intersection": "age \u00d7 gender",
-        "subgroup": "39+Male",
-        "n": 10,
-        "rate": 1.0,
-        "overall_rate": 1.0,
-        "deviation": 0.0
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "26-35+Female",
+        "n": 67,
+        "rate": 0.597,
+        "overall_rate": 0.63,
+        "deviation": 0.033
       },
       {
-        "intersection": "marital_status \u00d7 race",
-        "subgroup": "Never-married+White",
-        "n": 10,
-        "rate": 1.0,
-        "overall_rate": 1.0,
-        "deviation": 0.0
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "26-35+Male",
+        "n": 99,
+        "rate": 0.6061,
+        "overall_rate": 0.63,
+        "deviation": 0.0239
       },
       {
-        "intersection": "marital_status \u00d7 gender",
-        "subgroup": "Never-married+Male",
-        "n": 10,
-        "rate": 1.0,
-        "overall_rate": 1.0,
-        "deviation": 0.0
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "36-45+Female",
+        "n": 86,
+        "rate": 0.593,
+        "overall_rate": 0.63,
+        "deviation": 0.037
       },
       {
-        "intersection": "race \u00d7 gender",
-        "subgroup": "White+Male",
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "36-45+Male",
+        "n": 89,
+        "rate": 0.6966,
+        "overall_rate": 0.63,
+        "deviation": 0.0666
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "46-55+Female",
+        "n": 24,
+        "rate": 0.4583,
+        "overall_rate": 0.63,
+        "deviation": 0.1717,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "46-55+Male",
+        "n": 44,
+        "rate": 0.7273,
+        "overall_rate": 0.63,
+        "deviation": 0.0973
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "56-65+Female",
+        "n": 7,
+        "rate": 0.4286,
+        "overall_rate": 0.63,
+        "deviation": 0.2014,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "56-65+Male",
+        "n": 6,
+        "rate": 0.6667,
+        "overall_rate": 0.63,
+        "deviation": 0.0367,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "18-25+Asian",
         "n": 10,
-        "rate": 1.0,
-        "overall_rate": 1.0,
-        "deviation": 0.0
+        "rate": 0.7,
+        "overall_rate": 0.63,
+        "deviation": 0.07,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "18-25+Black",
+        "n": 19,
+        "rate": 0.6316,
+        "overall_rate": 0.63,
+        "deviation": 0.0016,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "18-25+Hispanic",
+        "n": 15,
+        "rate": 0.4,
+        "overall_rate": 0.63,
+        "deviation": 0.23,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "18-25+White",
+        "n": 34,
+        "rate": 0.7941,
+        "overall_rate": 0.63,
+        "deviation": 0.1641,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "26-35+Asian",
+        "n": 17,
+        "rate": 0.5294,
+        "overall_rate": 0.63,
+        "deviation": 0.1006,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "26-35+Black",
+        "n": 42,
+        "rate": 0.5,
+        "overall_rate": 0.63,
+        "deviation": 0.13
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "26-35+Hispanic",
+        "n": 26,
+        "rate": 0.5385,
+        "overall_rate": 0.63,
+        "deviation": 0.0915
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "26-35+White",
+        "n": 81,
+        "rate": 0.6914,
+        "overall_rate": 0.63,
+        "deviation": 0.0614
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "36-45+Asian",
+        "n": 25,
+        "rate": 0.76,
+        "overall_rate": 0.63,
+        "deviation": 0.13
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "36-45+Black",
+        "n": 45,
+        "rate": 0.4444,
+        "overall_rate": 0.63,
+        "deviation": 0.1856,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "36-45+Hispanic",
+        "n": 26,
+        "rate": 0.4615,
+        "overall_rate": 0.63,
+        "deviation": 0.1685,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "36-45+White",
+        "n": 79,
+        "rate": 0.7848,
+        "overall_rate": 0.63,
+        "deviation": 0.1548,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "46-55+Asian",
+        "n": 2,
+        "rate": 0.5,
+        "overall_rate": 0.63,
+        "deviation": 0.13,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "46-55+Black",
+        "n": 19,
+        "rate": 0.3158,
+        "overall_rate": 0.63,
+        "deviation": 0.3142,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "46-55+Hispanic",
+        "n": 6,
+        "rate": 0.6667,
+        "overall_rate": 0.63,
+        "deviation": 0.0367,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "46-55+White",
+        "n": 41,
+        "rate": 0.7805,
+        "overall_rate": 0.63,
+        "deviation": 0.1505,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "56-65+Asian",
+        "n": 1,
+        "rate": 0.0,
+        "overall_rate": 0.63,
+        "deviation": 0.63,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "56-65+Black",
+        "n": 3,
+        "rate": 0.6667,
+        "overall_rate": 0.63,
+        "deviation": 0.0367,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "56-65+Hispanic",
+        "n": 3,
+        "rate": 0.3333,
+        "overall_rate": 0.63,
+        "deviation": 0.2967,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "56-65+White",
+        "n": 6,
+        "rate": 0.6667,
+        "overall_rate": 0.63,
+        "deviation": 0.0367,
+        "small_sample": true
+      },
+      {
+        "intersection": "gender \u00d7 race",
+        "subgroup": "Female+Asian",
+        "n": 19,
+        "rate": 0.5789,
+        "overall_rate": 0.63,
+        "deviation": 0.0511,
+        "small_sample": true
+      },
+      {
+        "intersection": "gender \u00d7 race",
+        "subgroup": "Female+Black",
+        "n": 61,
+        "rate": 0.4754,
+        "overall_rate": 0.63,
+        "deviation": 0.1546,
+        "flagged": true
+      },
+      {
+        "intersection": "gender \u00d7 race",
+        "subgroup": "Female+Hispanic",
+        "n": 32,
+        "rate": 0.4375,
+        "overall_rate": 0.63,
+        "deviation": 0.1925,
+        "flagged": true
+      },
+      {
+        "intersection": "gender \u00d7 race",
+        "subgroup": "Female+White",
+        "n": 101,
+        "rate": 0.6832,
+        "overall_rate": 0.63,
+        "deviation": 0.0532
+      },
+      {
+        "intersection": "gender \u00d7 race",
+        "subgroup": "Male+Asian",
+        "n": 36,
+        "rate": 0.6944,
+        "overall_rate": 0.63,
+        "deviation": 0.0644
+      },
+      {
+        "intersection": "gender \u00d7 race",
+        "subgroup": "Male+Black",
+        "n": 67,
+        "rate": 0.4776,
+        "overall_rate": 0.63,
+        "deviation": 0.1524,
+        "flagged": true
+      },
+      {
+        "intersection": "gender \u00d7 race",
+        "subgroup": "Male+Hispanic",
+        "n": 44,
+        "rate": 0.5227,
+        "overall_rate": 0.63,
+        "deviation": 0.1073
+      },
+      {
+        "intersection": "gender \u00d7 race",
+        "subgroup": "Male+White",
+        "n": 140,
+        "rate": 0.8,
+        "overall_rate": 0.63,
+        "deviation": 0.17,
+        "flagged": true
       }
     ],
-    "issues": [],
-    "worst": null
+    "issues": [
+      "46-55+Female: 46% vs 63%",
+      "18-25+White: 79% vs 63%",
+      "36-45+Black: 44% vs 63%",
+      "36-45+Hispanic: 46% vs 63%",
+      "36-45+White: 78% vs 63%",
+      "46-55+White: 78% vs 63%",
+      "Female+Black: 48% vs 63%",
+      "Female+Hispanic: 44% vs 63%",
+      "Male+Black: 48% vs 63%",
+      "Male+White: 80% vs 63%"
+    ],
+    "worst": {
+      "intersection": "age_group \u00d7 race",
+      "subgroup": "56-65+Asian",
+      "n": 1,
+      "rate": 0.0,
+      "overall_rate": 0.63,
+      "deviation": 0.63,
+      "small_sample": true
+    }
   },
   "layer3": {
-    "status": "PASS",
-    "proxies": [],
-    "shap_top": [],
-    "issues": []
+    "status": "WARN",
+    "proxies": [
+      {
+        "feature": "zip_code",
+        "protected_attr": "race",
+        "correlation": -0.6479,
+        "p_value": 0.0,
+        "risk": "MEDIUM"
+      }
+    ],
+    "shap_top": [
+      {
+        "feature": "zip_code",
+        "mean_abs_shap": 0.3795
+      },
+      {
+        "feature": "income",
+        "mean_abs_shap": 0.2957
+      },
+      {
+        "feature": "credit_score",
+        "mean_abs_shap": 0.2331
+      },
+      {
+        "feature": "years_experience",
+        "mean_abs_shap": 0.1531
+      }
+    ],
+    "issues": [
+      "zip_code MEDIUM proxy for race"
+    ]
   },
   "layer4": {
-    "status": "PASS",
-    "distributions": [],
-    "issues": []
+    "status": "WARN",
+    "distributions": [
+      {
+        "feature": "zip_code",
+        "protected_attr": "age_group",
+        "group_stats": {
+          "36-45": {
+            "mean": 16574.21,
+            "std": 9328.57,
+            "n": 175
+          },
+          "18-25": {
+            "mean": 18336.19,
+            "std": 9857.84,
+            "n": 78
+          },
+          "26-35": {
+            "mean": 15544.83,
+            "std": 8348.67,
+            "n": 166
+          },
+          "46-55": {
+            "mean": 13826.51,
+            "std": 6236.11,
+            "n": 68
+          }
+        },
+        "max_mean_diff": 4509.68,
+        "pooled_std": 8442.8,
+        "sd_gap": 0.53
+      },
+      {
+        "feature": "years_experience",
+        "protected_attr": "age_group",
+        "group_stats": {
+          "36-45": {
+            "mean": 8.81,
+            "std": 4.63,
+            "n": 175
+          },
+          "18-25": {
+            "mean": 8.47,
+            "std": 4.92,
+            "n": 78
+          },
+          "26-35": {
+            "mean": 9.39,
+            "std": 4.95,
+            "n": 166
+          },
+          "46-55": {
+            "mean": 9.11,
+            "std": 4.79,
+            "n": 68
+          }
+        },
+        "max_mean_diff": 0.92,
+        "pooled_std": 4.82,
+        "sd_gap": 0.19
+      },
+      {
+        "feature": "income",
+        "protected_attr": "age_group",
+        "group_stats": {
+          "36-45": {
+            "mean": 57764.07,
+            "std": 20097.14,
+            "n": 175
+          },
+          "18-25": {
+            "mean": 56097.28,
+            "std": 20715.17,
+            "n": 78
+          },
+          "26-35": {
+            "mean": 57077.8,
+            "std": 20036.93,
+            "n": 166
+          },
+          "46-55": {
+            "mean": 55660.13,
+            "std": 20238.98,
+            "n": 68
+          }
+        },
+        "max_mean_diff": 2103.94,
+        "pooled_std": 20272.06,
+        "sd_gap": 0.1
+      },
+      {
+        "feature": "credit_score",
+        "protected_attr": "age_group",
+        "group_stats": {
+          "36-45": {
+            "mean": 704.35,
+            "std": 50.56,
+            "n": 175
+          },
+          "18-25": {
+            "mean": 701.24,
+            "std": 56.79,
+            "n": 78
+          },
+          "26-35": {
+            "mean": 703.7,
+            "std": 48.85,
+            "n": 166
+          },
+          "46-55": {
+            "mean": 697.93,
+            "std": 43.22,
+            "n": 68
+          }
+        },
+        "max_mean_diff": 6.42,
+        "pooled_std": 49.85,
+        "sd_gap": 0.13
+      },
+      {
+        "feature": "zip_code",
+        "protected_attr": "gender",
+        "group_stats": {
+          "Female": {
+            "mean": 15965.19,
+            "std": 8334.63,
+            "n": 213
+          },
+          "Male": {
+            "mean": 16309.38,
+            "std": 9176.43,
+            "n": 287
+          }
+        },
+        "max_mean_diff": 344.19,
+        "pooled_std": 8755.53,
+        "sd_gap": 0.04
+      },
+      {
+        "feature": "years_experience",
+        "protected_attr": "gender",
+        "group_stats": {
+          "Female": {
+            "mean": 7.64,
+            "std": 4.41,
+            "n": 213
+          },
+          "Male": {
+            "mean": 10.05,
+            "std": 4.92,
+            "n": 287
+          }
+        },
+        "max_mean_diff": 2.41,
+        "pooled_std": 4.67,
+        "sd_gap": 0.52
+      },
+      {
+        "feature": "income",
+        "protected_attr": "gender",
+        "group_stats": {
+          "Female": {
+            "mean": 57101.62,
+            "std": 20129.41,
+            "n": 213
+          },
+          "Male": {
+            "mean": 56801.22,
+            "std": 19966.02,
+            "n": 287
+          }
+        },
+        "max_mean_diff": 300.4,
+        "pooled_std": 20047.72,
+        "sd_gap": 0.01
+      },
+      {
+        "feature": "credit_score",
+        "protected_attr": "gender",
+        "group_stats": {
+          "Female": {
+            "mean": 705.61,
+            "std": 50.82,
+            "n": 213
+          },
+          "Male": {
+            "mean": 701.03,
+            "std": 49.27,
+            "n": 287
+          }
+        },
+        "max_mean_diff": 4.58,
+        "pooled_std": 50.05,
+        "sd_gap": 0.09
+      },
+      {
+        "feature": "zip_code",
+        "protected_attr": "race",
+        "group_stats": {
+          "White": {
+            "mean": 10003.21,
+            "std": 1.42,
+            "n": 241
+          },
+          "Asian": {
+            "mean": 26365.4,
+            "std": 15075.61,
+            "n": 55
+          },
+          "Black": {
+            "mean": 20002.93,
+            "std": 1.43,
+            "n": 128
+          },
+          "Hispanic": {
+            "mean": 21843.86,
+            "std": 9894.4,
+            "n": 76
+          }
+        },
+        "max_mean_diff": 16362.19,
+        "pooled_std": 6243.22,
+        "sd_gap": 2.62,
+        "flagged": true
+      },
+      {
+        "feature": "years_experience",
+        "protected_attr": "race",
+        "group_stats": {
+          "White": {
+            "mean": 8.62,
+            "std": 4.76,
+            "n": 241
+          },
+          "Asian": {
+            "mean": 9.63,
+            "std": 4.7,
+            "n": 55
+          },
+          "Black": {
+            "mean": 9.23,
+            "std": 5.08,
+            "n": 128
+          },
+          "Hispanic": {
+            "mean": 9.52,
+            "std": 4.84,
+            "n": 76
+          }
+        },
+        "max_mean_diff": 1.01,
+        "pooled_std": 4.85,
+        "sd_gap": 0.21
+      },
+      {
+        "feature": "income",
+        "protected_attr": "race",
+        "group_stats": {
+          "White": {
+            "mean": 60579.93,
+            "std": 18771.84,
+            "n": 241
+          },
+          "Asian": {
+            "mean": 63777.33,
+            "std": 21334.86,
+            "n": 55
+          },
+          "Black": {
+            "mean": 48252.05,
+            "std": 18145.46,
+            "n": 128
+          },
+          "Hispanic": {
+            "mean": 55010.74,
+            "std": 21054.86,
+            "n": 76
+          }
+        },
+        "max_mean_diff": 15525.28,
+        "pooled_std": 19826.75,
+        "sd_gap": 0.78
+      },
+      {
+        "feature": "credit_score",
+        "protected_attr": "race",
+        "group_stats": {
+          "White": {
+            "mean": 702.43,
+            "std": 51.99,
+            "n": 241
+          },
+          "Asian": {
+            "mean": 710.44,
+            "std": 51.22,
+            "n": 55
+          },
+          "Black": {
+            "mean": 699.2,
+            "std": 46.13,
+            "n": 128
+          },
+          "Hispanic": {
+            "mean": 705.68,
+            "std": 48.76,
+            "n": 76
+          }
+        },
+        "max_mean_diff": 11.24,
+        "pooled_std": 49.52,
+        "sd_gap": 0.23
+      }
+    ],
+    "issues": [
+      "'zip_code' 2.6 SD gap across race"
+    ]
   },
   "layer5": {
     "status": "PASS",
@@ -96,7 +812,38 @@
     "issues": []
   },
   "layer6": {
-    "recommendations": [],
-    "explanations": []
+    "recommendations": [
+      "Calibrate model or adjust thresholds to equalise PPV across 'age_group' groups.",
+      "Calibrate model or adjust thresholds to equalise PPV across 'gender' groups.",
+      "Apply reweighting or SMOTE to balance data for 'race'.",
+      "Apply threshold adjustment to equalise positive rates across 'race' groups.",
+      "Retrain with equalized-odds constraints or post-hoc calibrate TPR for 'race'.",
+      "Calibrate model or adjust thresholds to equalise PPV across 'race' groups.",
+      "Investigate 'zip_code' before training.",
+      "Audit collection for 'zip_code'. Consider per-group normalisation."
+    ],
+    "explanations": [
+      "Predictive Parity Diff on 'age_group' = -0.1001  (threshold \u00b10.1).\n    Model precision differs between groups.",
+      "Predictive Parity Diff on 'gender' = -0.1118  (threshold \u00b10.1).\n    Model precision differs between groups.",
+      "Disparate Impact on 'race' = 0.63 (threshold 0.8).\n    Unprivileged group gets positive outcomes at only 63% the rate of privileged group ('White').",
+      "Demographic Parity Gap on 'race' = -0.2745  (threshold \u00b10.1).\n    Outcome rates differ significantly between groups.",
+      "Equal Opportunity Diff on 'race' = -0.3329  (threshold \u00b10.1).\n    Qualified individuals in one group are less likely to be identified correctly.",
+      "Predictive Parity Diff on 'race' = -0.2387  (threshold \u00b10.1).\n    Model precision differs between groups.",
+      "'zip_code' is a MEDIUM RISK proxy for 'race' (r=-0.6479).\n    The model can reconstruct group membership indirectly.",
+      "'zip_code' has 2.6 SD gap across 'race' groups.\n    Data collection may differ systematically between groups."
+    ]
+  },
+  "bias_score": {
+    "score": 40.2,
+    "verdict": "MODERATE BIAS",
+    "domain": "generic",
+    "contributions": {
+      "DI": 4.1,
+      "DP": 10.2,
+      "proxy": 3.7,
+      "label": 0.0,
+      "dist": 16.2,
+      "intersect": 5.9
+    }
   }
 }

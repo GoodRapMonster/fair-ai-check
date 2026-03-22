@@ -39,6 +39,85 @@ MEDIUM_PROXY_CORR        = 0.5
 DISTRIBUTION_SD_GAP      = 1.0
 DRIFT_THRESHOLD          = 0.05
 
+def load_file(path):
+    """
+    Auto-detect file format and load into DataFrame.
+    Supports: CSV, TSV, TXT, Excel, Parquet, Feather, HDF5, JSON, XML
+    """
+    ext = os.path.splitext(path)[1].lower()
+
+    # ── Flat files ────────────────────────────────────────────────
+    if ext in ('.csv', '.txt'):
+        # Try comma first, fall back to auto-detect
+        try:
+            return pd.read_csv(path, encoding='utf-8')
+        except UnicodeDecodeError:
+            return pd.read_csv(path, encoding='latin-1')
+
+    elif ext == '.tsv':
+        try:
+            return pd.read_csv(path, sep='\t', encoding='utf-8')
+        except UnicodeDecodeError:
+            return pd.read_csv(path, sep='\t', encoding='latin-1')
+
+    # ── Spreadsheets ──────────────────────────────────────────────
+    elif ext in ('.xlsx', '.xls'):
+        # If multiple sheets exist, ask user which one
+        xl = pd.ExcelFile(path)
+        if len(xl.sheet_names) > 1:
+            print(f"  {Fore.CYAN}Sheets found: {xl.sheet_names}{Style.RESET_ALL}")
+            sheet = input("  Which sheet? (press Enter for first): ").strip()
+            sheet = sheet if sheet else xl.sheet_names[0]
+        else:
+            sheet = xl.sheet_names[0]
+        return pd.read_excel(path, sheet_name=sheet)
+
+    elif ext == '.ods':
+        return pd.read_excel(path, engine='odf')
+
+    # ── Big data formats ──────────────────────────────────────────
+    elif ext == '.parquet':
+        return pd.read_parquet(path)
+
+    elif ext == '.feather':
+        return pd.read_feather(path)
+
+    elif ext in ('.h5', '.hdf5'):
+        # HDF5 can have multiple keys
+        import h5py
+        with h5py.File(path, 'r') as f:
+            keys = list(f.keys())
+        if not keys:
+            raise ValueError("HDF5 file contains no datasets")
+        if len(keys) > 1:
+            print(f"  {Fore.CYAN}HDF5 keys: {keys}{Style.RESET_ALL}")
+            key = input("  Which key? (press Enter for first): ").strip()
+            key = key if key else keys[0]
+        else:
+            key = keys[0]
+        return pd.read_hdf(path, key=key)
+
+    # ── Semi-structured ───────────────────────────────────────────
+    elif ext == '.json':
+        try:
+            return pd.read_json(path)
+        except ValueError:
+            # Nested JSON → normalize
+            with open(path) as f:
+                data = json.load(f)
+            return pd.json_normalize(data)
+
+    elif ext == '.xml':
+        return pd.read_xml(path)
+
+    # ── Unknown format ────────────────────────────────────────────
+    else:
+        raise ValueError(
+            f"Unsupported format: '{ext}'\n"
+            f"Supported: .csv .tsv .txt .xlsx .xls .ods "
+            f".parquet .feather .h5 .hdf5 .json .xml"
+        )
+
 # FIX-03: scale min subgroup size to dataset size
 def dynamic_min_size(n):
     if n <= 20:   return 2
@@ -84,7 +163,7 @@ def bin_numeric_protected(df, attrs):
                     labels=["18-25","26-35","36-45","46-55","56-65","65+"],right=True).astype(str)
             else:
                 try:    df[attr+"_group"] = pd.qcut(col,q=4,duplicates="drop").astype(str)
-                except: df[attr+"_group"] = col.astype(str)
+                except Exception: df[attr+"_group"] = col.astype(str)
             new_attrs.append(attr+"_group"); info[attr] = True
             p_info(f"Binned numeric '{attr}' → '{attr}_group'")
         else:
@@ -105,7 +184,8 @@ def binarise_target(df, target):
         df[target] = 1; return df, "1", True
     if nu == 2:
         vals = col.dropna().unique().tolist()
-        pos = next((v for v in vals if ">" in str(v) or str(v).strip().lower() in ("1","yes","true","high")),
+        POSITIVE_HINTS = [">","1","yes","true","high","approved","pass","positive","accept"]
+        pos = next((v for v in vals if any(h in str(v).lower() for h in POSITIVE_HINTS)),
                    sorted(vals, key=str)[-1])
         df[target] = (col == pos).astype(int); return df, str(pos), False
     if pd.api.types.is_numeric_dtype(col):
@@ -125,9 +205,11 @@ def writable_dir(path):
     """FIX-11: fallback to cwd if path not writable."""
     try:
         os.makedirs(path, exist_ok=True)
-        t = os.path.join(path, ".fs_test"); open(t,"w").close(); os.remove(t)
+        t = os.path.join(path, ".fs_test")
+        with open(t, "w"): pass
+        os.remove(t)
         return path
-    except: return os.getcwd()
+    except Exception: return os.getcwd()
 
 def encode_col(series):
     """FIX-09: safe numeric encoding; None if zero-variance or uncompatible."""
@@ -321,7 +403,7 @@ def layer3(df, protected_attrs, target, binned_orig=None, trivial=False, min_siz
                     try:
                         r, p = pointbiserialr(binary, ce)
                         if math.isnan(r): continue
-                    except: continue
+                    except Exception: continue
                     risk = ("HIGH" if abs(r)>HIGH_PROXY_CORR and p<0.05 else
                             "MEDIUM" if abs(r)>MEDIUM_PROXY_CORR and p<0.05 else None)
                     if risk: all_px.append({"feature":col,"protected_attr":f"{attr}={val}",
@@ -338,9 +420,9 @@ def layer3(df, protected_attrs, target, binned_orig=None, trivial=False, min_siz
             try:
                 r, p = pointbiserialr(ae2, ce2)
                 if math.isnan(r): continue
-            except:
+            except Exception:
                 try: r, p = stats.pearsonr(ae2.astype(float), ce2.astype(float))
-                except: continue
+                except Exception: continue
                 if math.isnan(r): continue
             risk = ("HIGH" if abs(r)>HIGH_PROXY_CORR and p<0.05 else
                     "MEDIUM" if abs(r)>MEDIUM_PROXY_CORR and p<0.05 else None)
@@ -449,7 +531,7 @@ def layer5(l1, history_path, output_dir):
         try:
             with open(hist_out) as f: loaded = json.load(f)
             hist = loaded if isinstance(loaded, list) else [loaded]
-        except: hist = []
+        except Exception: hist = []
     prev = None
     if history_path and os.path.exists(history_path):
         try:
@@ -606,22 +688,29 @@ def save_results(verdict, l1, l2, l3, l4, l5, l6, output_dir):
 def main():
     init(autoreset=False)
     ap = argparse.ArgumentParser(description="FairSight CLI v2 — robust bias detection for any CSV")
-    ap.add_argument("--csv",     required=True)
+    ap.add_argument("--file", required=True,
+        help="Path to dataset file (.csv .tsv .xlsx .parquet .json .xml etc)")
     ap.add_argument("--target",  default=None)
     ap.add_argument("--history", default=None)
     args = ap.parse_args()
 
-    if not os.path.exists(args.csv):
-        print(f"{Fore.RED}Error: '{args.csv}' not found.{Style.RESET_ALL}"); sys.exit(1)
+    if not os.path.exists(args.file):
+        print(f"{Fore.RED}Error: '{args.file}' not found.{Style.RESET_ALL}"); sys.exit(1)
 
-    output_dir = writable_dir(os.path.dirname(os.path.abspath(args.csv)))
+    output_dir = writable_dir(os.path.dirname(os.path.abspath(args.file)))
     banner()
 
-    try:    df = pd.read_csv(args.csv)
-    except Exception as e: print(f"{Fore.RED}CSV read error: {e}{Style.RESET_ALL}"); sys.exit(1)
+    try:    df = load_file(args.file)
+    except Exception as e: print(f"{Fore.RED}File read error: {e}{Style.RESET_ALL}"); sys.exit(1)
+
+    for col in df.columns:
+        try:
+            df[col] = pd.to_numeric(df[col], errors='ignore')
+        except Exception:
+            pass
 
     min_size = dynamic_min_size(len(df))
-    print(f"  {Style.BRIGHT}Dataset:{Style.RESET_ALL}      {args.csv}")
+    print(f"  {Style.BRIGHT}Dataset:{Style.RESET_ALL}      {args.file}")
     print(f"  {Style.BRIGHT}Rows:{Style.RESET_ALL}         {len(df):,}")
     print(f"  {Style.BRIGHT}Columns:{Style.RESET_ALL}      {len(df.columns)}  ({', '.join(df.columns)})")
     print(f"  {Style.BRIGHT}Min group size:{Style.RESET_ALL} {min_size} (auto-scaled to dataset)")
@@ -629,13 +718,13 @@ def main():
     miss = df.columns[df.isnull().any()].tolist()
     if miss: p_warn(f"Missing values in: {', '.join(miss)}")
 
-    protected_attrs = detect_protected(df)
+    target = detect_target(df, args.target)
+    print(f"  {Style.BRIGHT}Target column:{Style.RESET_ALL}  {target}")
+
+    protected_attrs = [c for c in detect_protected(df) if c != target]
     if not protected_attrs:
         print(f"{Fore.RED}No protected attributes found. Add columns named: {', '.join(PROTECTED_KEYWORDS)}{Style.RESET_ALL}"); sys.exit(1)
     print(f"\n  {Style.BRIGHT}Protected attributes:{Style.RESET_ALL} {', '.join(protected_attrs)}")
-
-    target = detect_target(df, args.target)
-    print(f"  {Style.BRIGHT}Target column:{Style.RESET_ALL}  {target}")
 
     df, protected_attrs, binned_info = bin_numeric_protected(df, protected_attrs)
     binned_orig = set(binned_info.keys())

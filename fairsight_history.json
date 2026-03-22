@@ -1375,5 +1375,1104 @@
         "reason": "insufficient_groups"
       }
     }
+  },
+  {
+    "timestamp": "2026-03-22T11:13:18.766685",
+    "metrics": {
+      "age": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "marital_status": {
+        "disparate_impact": {
+          "value": 1.0,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Married-civ-spouse",
+          "priv_rate": 1.0,
+          "unpriv_rate": 1.0
+        },
+        "demographic_parity": {
+          "value": 0.0,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": null,
+          "pass": null
+        },
+        "predictive_parity": {
+          "value": null,
+          "pass": null
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 1.0,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Asian-Pac-Islander",
+          "priv_rate": 1.0,
+          "unpriv_rate": 1.0
+        },
+        "demographic_parity": {
+          "value": 0.0,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": null,
+          "pass": null
+        },
+        "predictive_parity": {
+          "value": null,
+          "pass": null
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 1.0,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Female",
+          "priv_rate": 1.0,
+          "unpriv_rate": 1.0
+        },
+        "demographic_parity": {
+          "value": 0.0,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": null,
+          "pass": null
+        },
+        "predictive_parity": {
+          "value": null,
+          "pass": null
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T11:15:30.544134",
+    "metrics": {
+      "age": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "marital_status": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "race": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "gender": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T11:20:28.079632",
+    "metrics": {
+      "age_group": {
+        "disparate_impact": {
+          "value": 0.0446,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "46-55",
+          "priv_rate": 0.3983,
+          "unpriv_rate": 0.0178
+        },
+        "demographic_parity": {
+          "value": -0.3806,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.3189,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.582,
+          "unpriv_tpr": 0.2632
+        },
+        "predictive_parity": {
+          "value": 0.0561,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.8263,
+          "unpriv_ppv": 0.8824
+        }
+      },
+      "marital_status": {
+        "disparate_impact": {
+          "value": 0.1029,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Married-civ-spouse",
+          "priv_rate": 0.4468,
+          "unpriv_rate": 0.046
+        },
+        "demographic_parity": {
+          "value": -0.4009,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.2894,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.5989,
+          "unpriv_tpr": 0.3096
+        },
+        "predictive_parity": {
+          "value": 0.1846,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7898,
+          "unpriv_ppv": 0.9744
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 0.3473,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Asian-Pac-Islander",
+          "priv_rate": 0.2656,
+          "unpriv_rate": 0.0923
+        },
+        "demographic_parity": {
+          "value": -0.1734,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.1613,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.6413,
+          "unpriv_tpr": 0.48
+        },
+        "predictive_parity": {
+          "value": -0.0708,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.7024,
+          "unpriv_ppv": 0.6316
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 0.358,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Male",
+          "priv_rate": 0.3057,
+          "unpriv_rate": 0.1095
+        },
+        "demographic_parity": {
+          "value": -0.1963,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.1281,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.5725,
+          "unpriv_tpr": 0.4444
+        },
+        "predictive_parity": {
+          "value": 0.0368,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.7962,
+          "unpriv_ppv": 0.8331
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T12:22:22.276711",
+    "metrics": {
+      "age_group": {
+        "disparate_impact": {
+          "value": 0.9036,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "18-25",
+          "priv_rate": 0.6667,
+          "unpriv_rate": 0.6024
+        },
+        "demographic_parity": {
+          "value": -0.0643,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": 0.0223,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_tpr": 0.8077,
+          "unpriv_tpr": 0.83
+        },
+        "predictive_parity": {
+          "value": -0.1001,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7241,
+          "unpriv_ppv": 0.6241
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 0.8632,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Male",
+          "priv_rate": 0.669,
+          "unpriv_rate": 0.5775
+        },
+        "demographic_parity": {
+          "value": -0.0915,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": -0.0545,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_tpr": 0.8594,
+          "unpriv_tpr": 0.8049
+        },
+        "predictive_parity": {
+          "value": -0.1118,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7082,
+          "unpriv_ppv": 0.5964
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 0.6345,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "White",
+          "priv_rate": 0.751,
+          "unpriv_rate": 0.4766
+        },
+        "demographic_parity": {
+          "value": -0.2745,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.3329,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.9558,
+          "unpriv_tpr": 0.623
+        },
+        "predictive_parity": {
+          "value": -0.2387,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7522,
+          "unpriv_ppv": 0.5135
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T13:36:03.148397",
+    "metrics": {
+      "age_group": {
+        "disparate_impact": {
+          "value": 0.0446,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "46-55",
+          "priv_rate": 0.3983,
+          "unpriv_rate": 0.0178
+        },
+        "demographic_parity": {
+          "value": -0.3806,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.3189,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.582,
+          "unpriv_tpr": 0.2632
+        },
+        "predictive_parity": {
+          "value": 0.0561,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.8263,
+          "unpriv_ppv": 0.8824
+        }
+      },
+      "marital_status": {
+        "disparate_impact": {
+          "value": 0.1029,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Married-civ-spouse",
+          "priv_rate": 0.4468,
+          "unpriv_rate": 0.046
+        },
+        "demographic_parity": {
+          "value": -0.4009,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.2894,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.5989,
+          "unpriv_tpr": 0.3096
+        },
+        "predictive_parity": {
+          "value": 0.1846,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7898,
+          "unpriv_ppv": 0.9744
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 0.3473,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Asian-Pac-Islander",
+          "priv_rate": 0.2656,
+          "unpriv_rate": 0.0923
+        },
+        "demographic_parity": {
+          "value": -0.1734,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.1613,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.6413,
+          "unpriv_tpr": 0.48
+        },
+        "predictive_parity": {
+          "value": -0.0708,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.7024,
+          "unpriv_ppv": 0.6316
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 0.358,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Male",
+          "priv_rate": 0.3057,
+          "unpriv_rate": 0.1095
+        },
+        "demographic_parity": {
+          "value": -0.1963,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.1281,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.5725,
+          "unpriv_tpr": 0.4444
+        },
+        "predictive_parity": {
+          "value": 0.0368,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.7962,
+          "unpriv_ppv": 0.8331
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T13:37:08.385260",
+    "metrics": {
+      "age_group": {
+        "disparate_impact": {
+          "value": 0.0446,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "46-55",
+          "priv_rate": 0.3983,
+          "unpriv_rate": 0.0178
+        },
+        "demographic_parity": {
+          "value": -0.3806,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.3189,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.582,
+          "unpriv_tpr": 0.2632
+        },
+        "predictive_parity": {
+          "value": 0.0561,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.8263,
+          "unpriv_ppv": 0.8824
+        }
+      },
+      "marital_status": {
+        "disparate_impact": {
+          "value": 0.1029,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Married-civ-spouse",
+          "priv_rate": 0.4468,
+          "unpriv_rate": 0.046
+        },
+        "demographic_parity": {
+          "value": -0.4009,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.2894,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.5989,
+          "unpriv_tpr": 0.3096
+        },
+        "predictive_parity": {
+          "value": 0.1846,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7898,
+          "unpriv_ppv": 0.9744
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 0.3473,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Asian-Pac-Islander",
+          "priv_rate": 0.2656,
+          "unpriv_rate": 0.0923
+        },
+        "demographic_parity": {
+          "value": -0.1734,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.1613,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.6413,
+          "unpriv_tpr": 0.48
+        },
+        "predictive_parity": {
+          "value": -0.0708,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.7024,
+          "unpriv_ppv": 0.6316
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 0.358,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Male",
+          "priv_rate": 0.3057,
+          "unpriv_rate": 0.1095
+        },
+        "demographic_parity": {
+          "value": -0.1963,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.1281,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.5725,
+          "unpriv_tpr": 0.4444
+        },
+        "predictive_parity": {
+          "value": 0.0368,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.7962,
+          "unpriv_ppv": 0.8331
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T13:49:50.565445",
+    "metrics": {
+      "age": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "marital_status": {
+        "disparate_impact": {
+          "value": 1.0,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Married-civ-spouse",
+          "priv_rate": 1.0,
+          "unpriv_rate": 1.0
+        },
+        "demographic_parity": {
+          "value": 0.0,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": null,
+          "pass": null
+        },
+        "predictive_parity": {
+          "value": null,
+          "pass": null
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 1.0,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Asian-Pac-Islander",
+          "priv_rate": 1.0,
+          "unpriv_rate": 1.0
+        },
+        "demographic_parity": {
+          "value": 0.0,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": null,
+          "pass": null
+        },
+        "predictive_parity": {
+          "value": null,
+          "pass": null
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 1.0,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Female",
+          "priv_rate": 1.0,
+          "unpriv_rate": 1.0
+        },
+        "demographic_parity": {
+          "value": 0.0,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": null,
+          "pass": null
+        },
+        "predictive_parity": {
+          "value": null,
+          "pass": null
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T13:56:13.015512",
+    "metrics": {
+      "age": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "marital_status": {
+        "disparate_impact": {
+          "value": 1.0,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Married-civ-spouse",
+          "priv_rate": 1.0,
+          "unpriv_rate": 1.0
+        },
+        "demographic_parity": {
+          "value": 0.0,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": null,
+          "pass": null
+        },
+        "predictive_parity": {
+          "value": null,
+          "pass": null
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 1.0,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Asian-Pac-Islander",
+          "priv_rate": 1.0,
+          "unpriv_rate": 1.0
+        },
+        "demographic_parity": {
+          "value": 0.0,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": null,
+          "pass": null
+        },
+        "predictive_parity": {
+          "value": null,
+          "pass": null
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 1.0,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Female",
+          "priv_rate": 1.0,
+          "unpriv_rate": 1.0
+        },
+        "demographic_parity": {
+          "value": 0.0,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": null,
+          "pass": null
+        },
+        "predictive_parity": {
+          "value": null,
+          "pass": null
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T13:57:22.874524",
+    "metrics": {
+      "age": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "marital_status": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "race": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "gender": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T13:57:53.010417",
+    "metrics": {
+      "age_group": {
+        "disparate_impact": {
+          "value": 0.9036,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "18-25",
+          "priv_rate": 0.6667,
+          "unpriv_rate": 0.6024
+        },
+        "demographic_parity": {
+          "value": -0.0643,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": 0.0223,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_tpr": 0.8077,
+          "unpriv_tpr": 0.83
+        },
+        "predictive_parity": {
+          "value": -0.1001,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7241,
+          "unpriv_ppv": 0.6241
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 0.8632,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Male",
+          "priv_rate": 0.669,
+          "unpriv_rate": 0.5775
+        },
+        "demographic_parity": {
+          "value": -0.0915,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": -0.0545,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_tpr": 0.8594,
+          "unpriv_tpr": 0.8049
+        },
+        "predictive_parity": {
+          "value": -0.1118,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7082,
+          "unpriv_ppv": 0.5964
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 0.6345,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "White",
+          "priv_rate": 0.751,
+          "unpriv_rate": 0.4766
+        },
+        "demographic_parity": {
+          "value": -0.2745,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.3329,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.9558,
+          "unpriv_tpr": 0.623
+        },
+        "predictive_parity": {
+          "value": -0.2387,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7522,
+          "unpriv_ppv": 0.5135
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T13:58:46.651025",
+    "metrics": {
+      "age_group": {
+        "disparate_impact": {
+          "value": 0.0446,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "46-55",
+          "priv_rate": 0.3983,
+          "unpriv_rate": 0.0178
+        },
+        "demographic_parity": {
+          "value": -0.3806,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.3189,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.582,
+          "unpriv_tpr": 0.2632
+        },
+        "predictive_parity": {
+          "value": 0.0561,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.8263,
+          "unpriv_ppv": 0.8824
+        }
+      },
+      "marital_status": {
+        "disparate_impact": {
+          "value": 0.1029,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Married-civ-spouse",
+          "priv_rate": 0.4468,
+          "unpriv_rate": 0.046
+        },
+        "demographic_parity": {
+          "value": -0.4009,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.2894,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.5989,
+          "unpriv_tpr": 0.3096
+        },
+        "predictive_parity": {
+          "value": 0.1846,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7898,
+          "unpriv_ppv": 0.9744
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 0.3473,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Asian-Pac-Islander",
+          "priv_rate": 0.2656,
+          "unpriv_rate": 0.0923
+        },
+        "demographic_parity": {
+          "value": -0.1734,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.1613,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.6413,
+          "unpriv_tpr": 0.48
+        },
+        "predictive_parity": {
+          "value": -0.0708,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.7024,
+          "unpriv_ppv": 0.6316
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 0.358,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Male",
+          "priv_rate": 0.3057,
+          "unpriv_rate": 0.1095
+        },
+        "demographic_parity": {
+          "value": -0.1963,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.1281,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.5725,
+          "unpriv_tpr": 0.4444
+        },
+        "predictive_parity": {
+          "value": 0.0368,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.7962,
+          "unpriv_ppv": 0.8331
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T14:04:52.754883",
+    "metrics": {
+      "sender_age_group": {
+        "disparate_impact": {
+          "value": 0.9764,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "18-25",
+          "priv_rate": 0.2864,
+          "unpriv_rate": 0.2796
+        },
+        "demographic_parity": {
+          "value": -0.0068,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": 0.0,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_tpr": 1.0,
+          "unpriv_tpr": 1.0
+        },
+        "predictive_parity": {
+          "value": 0.0,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 1.0,
+          "unpriv_ppv": 1.0
+        }
+      },
+      "receiver_age_group": {
+        "disparate_impact": {
+          "value": 0.9811,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "56+",
+          "priv_rate": 0.2887,
+          "unpriv_rate": 0.2833
+        },
+        "demographic_parity": {
+          "value": -0.0055,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": 0.0,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_tpr": 1.0,
+          "unpriv_tpr": 1.0
+        },
+        "predictive_parity": {
+          "value": 0.0,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 1.0,
+          "unpriv_ppv": 1.0
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T14:08:17.544870",
+    "metrics": {
+      "age_group": {
+        "disparate_impact": {
+          "value": 0.9036,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "18-25",
+          "priv_rate": 0.6667,
+          "unpriv_rate": 0.6024
+        },
+        "demographic_parity": {
+          "value": -0.0643,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": 0.0223,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_tpr": 0.8077,
+          "unpriv_tpr": 0.83
+        },
+        "predictive_parity": {
+          "value": -0.1001,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7241,
+          "unpriv_ppv": 0.6241
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 0.8632,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Male",
+          "priv_rate": 0.669,
+          "unpriv_rate": 0.5775
+        },
+        "demographic_parity": {
+          "value": -0.0915,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": -0.0545,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_tpr": 0.8594,
+          "unpriv_tpr": 0.8049
+        },
+        "predictive_parity": {
+          "value": -0.1118,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7082,
+          "unpriv_ppv": 0.5964
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 0.6345,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "White",
+          "priv_rate": 0.751,
+          "unpriv_rate": 0.4766
+        },
+        "demographic_parity": {
+          "value": -0.2745,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.3329,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.9558,
+          "unpriv_tpr": 0.623
+        },
+        "predictive_parity": {
+          "value": -0.2387,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7522,
+          "unpriv_ppv": 0.5135
+        }
+      }
+    }
   }
 ]
