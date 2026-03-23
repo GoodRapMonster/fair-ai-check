@@ -1,458 +1,1407 @@
 {
   "fairsight_version": "2.1.0",
-  "timestamp": "2026-03-22T14:08:17.554518",
+  "timestamp": "2026-03-22T14:11:42.652056",
   "overall_verdict": "BIASED",
   "layer1": {
     "status": "FAIL",
     "metrics": {
       "age_group": {
         "disparate_impact": {
-          "value": 0.9036,
-          "threshold": 0.8,
-          "pass": true,
-          "privileged": "18-25",
-          "priv_rate": 0.6667,
-          "unpriv_rate": 0.6024
-        },
-        "demographic_parity": {
-          "value": -0.0643,
-          "threshold": 0.1,
-          "pass": true
-        },
-        "equal_opportunity": {
-          "value": 0.0223,
-          "threshold": 0.1,
-          "pass": true,
-          "priv_tpr": 0.8077,
-          "unpriv_tpr": 0.83
-        },
-        "predictive_parity": {
-          "value": -0.1001,
-          "threshold": 0.1,
-          "pass": false,
-          "priv_ppv": 0.7241,
-          "unpriv_ppv": 0.6241
-        }
-      },
-      "gender": {
-        "disparate_impact": {
-          "value": 0.8632,
-          "threshold": 0.8,
-          "pass": true,
-          "privileged": "Male",
-          "priv_rate": 0.669,
-          "unpriv_rate": 0.5775
-        },
-        "demographic_parity": {
-          "value": -0.0915,
-          "threshold": 0.1,
-          "pass": true
-        },
-        "equal_opportunity": {
-          "value": -0.0545,
-          "threshold": 0.1,
-          "pass": true,
-          "priv_tpr": 0.8594,
-          "unpriv_tpr": 0.8049
-        },
-        "predictive_parity": {
-          "value": -0.1118,
-          "threshold": 0.1,
-          "pass": false,
-          "priv_ppv": 0.7082,
-          "unpriv_ppv": 0.5964
-        }
-      },
-      "race": {
-        "disparate_impact": {
-          "value": 0.6345,
+          "value": 0.0446,
           "threshold": 0.8,
           "pass": false,
-          "privileged": "White",
-          "priv_rate": 0.751,
-          "unpriv_rate": 0.4766
+          "privileged": "46-55",
+          "priv_rate": 0.3983,
+          "unpriv_rate": 0.0178
         },
         "demographic_parity": {
-          "value": -0.2745,
+          "value": -0.3806,
           "threshold": 0.1,
           "pass": false
         },
         "equal_opportunity": {
-          "value": -0.3329,
+          "value": -0.3189,
           "threshold": 0.1,
           "pass": false,
-          "priv_tpr": 0.9558,
-          "unpriv_tpr": 0.623
+          "priv_tpr": 0.582,
+          "unpriv_tpr": 0.2632
         },
         "predictive_parity": {
-          "value": -0.2387,
+          "value": 0.0561,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.8263,
+          "unpriv_ppv": 0.8824
+        }
+      },
+      "marital_status": {
+        "disparate_impact": {
+          "value": 0.1029,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Married-civ-spouse",
+          "priv_rate": 0.4468,
+          "unpriv_rate": 0.046
+        },
+        "demographic_parity": {
+          "value": -0.4009,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.2894,
           "threshold": 0.1,
           "pass": false,
-          "priv_ppv": 0.7522,
-          "unpriv_ppv": 0.5135
+          "priv_tpr": 0.5989,
+          "unpriv_tpr": 0.3096
+        },
+        "predictive_parity": {
+          "value": 0.1846,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7898,
+          "unpriv_ppv": 0.9744
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 0.3473,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Asian-Pac-Islander",
+          "priv_rate": 0.2656,
+          "unpriv_rate": 0.0923
+        },
+        "demographic_parity": {
+          "value": -0.1734,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.1613,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.6413,
+          "unpriv_tpr": 0.48
+        },
+        "predictive_parity": {
+          "value": -0.0708,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.7024,
+          "unpriv_ppv": 0.6316
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 0.358,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Male",
+          "priv_rate": 0.3057,
+          "unpriv_rate": 0.1095
+        },
+        "demographic_parity": {
+          "value": -0.1963,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.1281,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.5725,
+          "unpriv_tpr": 0.4444
+        },
+        "predictive_parity": {
+          "value": 0.0368,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.7962,
+          "unpriv_ppv": 0.8331
         }
       }
     },
     "issues": [
-      "PPD=-0.10 on 'age_group'",
-      "PPD=-0.11 on 'gender'",
-      "DI=0.63 on 'race'",
-      "DP=-0.27 on 'race'",
-      "EOD=-0.33 on 'race'",
-      "PPD=-0.24 on 'race'"
+      "DI=0.04 on 'age_group'",
+      "DP=-0.38 on 'age_group'",
+      "EOD=-0.32 on 'age_group'",
+      "DI=0.10 on 'marital_status'",
+      "DP=-0.40 on 'marital_status'",
+      "EOD=-0.29 on 'marital_status'",
+      "PPD=+0.18 on 'marital_status'",
+      "DI=0.35 on 'race'",
+      "DP=-0.17 on 'race'",
+      "EOD=-0.16 on 'race'",
+      "DI=0.36 on 'gender'",
+      "DP=-0.20 on 'gender'",
+      "EOD=-0.13 on 'gender'"
     ]
   },
   "layer2": {
     "status": "FAIL",
     "subgroups": [
       {
-        "intersection": "age_group \u00d7 gender",
-        "subgroup": "18-25+Female",
-        "n": 29,
-        "rate": 0.6207,
-        "overall_rate": 0.63,
-        "deviation": 0.0093
-      },
-      {
-        "intersection": "age_group \u00d7 gender",
-        "subgroup": "18-25+Male",
-        "n": 49,
-        "rate": 0.6939,
-        "overall_rate": 0.63,
-        "deviation": 0.0639
-      },
-      {
-        "intersection": "age_group \u00d7 gender",
-        "subgroup": "26-35+Female",
-        "n": 67,
-        "rate": 0.597,
-        "overall_rate": 0.63,
-        "deviation": 0.033
-      },
-      {
-        "intersection": "age_group \u00d7 gender",
-        "subgroup": "26-35+Male",
-        "n": 99,
-        "rate": 0.6061,
-        "overall_rate": 0.63,
-        "deviation": 0.0239
-      },
-      {
-        "intersection": "age_group \u00d7 gender",
-        "subgroup": "36-45+Female",
-        "n": 86,
-        "rate": 0.593,
-        "overall_rate": 0.63,
-        "deviation": 0.037
-      },
-      {
-        "intersection": "age_group \u00d7 gender",
-        "subgroup": "36-45+Male",
-        "n": 89,
-        "rate": 0.6966,
-        "overall_rate": 0.63,
-        "deviation": 0.0666
-      },
-      {
-        "intersection": "age_group \u00d7 gender",
-        "subgroup": "46-55+Female",
-        "n": 24,
-        "rate": 0.4583,
-        "overall_rate": 0.63,
-        "deviation": 0.1717,
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "18-25+Divorced",
+        "n": 129,
+        "rate": 0.0078,
+        "overall_rate": 0.2408,
+        "deviation": 0.2331,
         "flagged": true
       },
       {
-        "intersection": "age_group \u00d7 gender",
-        "subgroup": "46-55+Male",
-        "n": 44,
-        "rate": 0.7273,
-        "overall_rate": 0.63,
-        "deviation": 0.0973
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "18-25+Married-AF-spouse",
+        "n": 4,
+        "rate": 0.5,
+        "overall_rate": 0.2408,
+        "deviation": 0.2592,
+        "small_sample": true
       },
       {
-        "intersection": "age_group \u00d7 gender",
-        "subgroup": "56-65+Female",
-        "n": 7,
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "18-25+Married-civ-spouse",
+        "n": 675,
+        "rate": 0.1111,
+        "overall_rate": 0.2408,
+        "deviation": 0.1297
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "18-25+Married-spouse-absent",
+        "n": 48,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "18-25+Never-married",
+        "n": 5456,
+        "rate": 0.006,
+        "overall_rate": 0.2408,
+        "deviation": 0.2348,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "18-25+Separated",
+        "n": 95,
+        "rate": 0.0316,
+        "overall_rate": 0.2408,
+        "deviation": 0.2092,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "18-25+Widowed",
+        "n": 4,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "26-35+Divorced",
+        "n": 988,
+        "rate": 0.0617,
+        "overall_rate": 0.2408,
+        "deviation": 0.1791,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "26-35+Married-AF-spouse",
+        "n": 14,
         "rate": 0.4286,
-        "overall_rate": 0.63,
-        "deviation": 0.2014,
+        "overall_rate": 0.2408,
+        "deviation": 0.1878,
         "small_sample": true
       },
       {
-        "intersection": "age_group \u00d7 gender",
-        "subgroup": "56-65+Male",
-        "n": 6,
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "26-35+Married-civ-spouse",
+        "n": 3759,
+        "rate": 0.3477,
+        "overall_rate": 0.2408,
+        "deviation": 0.1069
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "26-35+Married-spouse-absent",
+        "n": 115,
+        "rate": 0.0261,
+        "overall_rate": 0.2408,
+        "deviation": 0.2147,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "26-35+Never-married",
+        "n": 3290,
+        "rate": 0.0593,
+        "overall_rate": 0.2408,
+        "deviation": 0.1815,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "26-35+Separated",
+        "n": 313,
+        "rate": 0.0479,
+        "overall_rate": 0.2408,
+        "deviation": 0.1929,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "26-35+Widowed",
+        "n": 35,
+        "rate": 0.1143,
+        "overall_rate": 0.2408,
+        "deviation": 0.1265
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "36-45+Divorced",
+        "n": 1630,
+        "rate": 0.1067,
+        "overall_rate": 0.2408,
+        "deviation": 0.1341
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "36-45+Married-AF-spouse",
+        "n": 3,
         "rate": 0.6667,
-        "overall_rate": 0.63,
-        "deviation": 0.0367,
+        "overall_rate": 0.2408,
+        "deviation": 0.4259,
         "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "36-45+Married-civ-spouse",
+        "n": 4580,
+        "rate": 0.5227,
+        "overall_rate": 0.2408,
+        "deviation": 0.2819,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "36-45+Married-spouse-absent",
+        "n": 110,
+        "rate": 0.1091,
+        "overall_rate": 0.2408,
+        "deviation": 0.1317
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "36-45+Never-married",
+        "n": 1241,
+        "rate": 0.1273,
+        "overall_rate": 0.2408,
+        "deviation": 0.1135
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "36-45+Separated",
+        "n": 338,
+        "rate": 0.074,
+        "overall_rate": 0.2408,
+        "deviation": 0.1668,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "36-45+Widowed",
+        "n": 107,
+        "rate": 0.0841,
+        "overall_rate": 0.2408,
+        "deviation": 0.1567,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "46-55+Divorced",
+        "n": 1126,
+        "rate": 0.1492,
+        "overall_rate": 0.2408,
+        "deviation": 0.0916
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "46-55+Married-AF-spouse",
+        "n": 1,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "46-55+Married-civ-spouse",
+        "n": 3459,
+        "rate": 0.5545,
+        "overall_rate": 0.2408,
+        "deviation": 0.3137,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "46-55+Married-spouse-absent",
+        "n": 96,
+        "rate": 0.1354,
+        "overall_rate": 0.2408,
+        "deviation": 0.1054
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "46-55+Never-married",
+        "n": 441,
+        "rate": 0.1746,
+        "overall_rate": 0.2408,
+        "deviation": 0.0662
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "46-55+Separated",
+        "n": 196,
+        "rate": 0.0714,
+        "overall_rate": 0.2408,
+        "deviation": 0.1694,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "46-55+Widowed",
+        "n": 219,
+        "rate": 0.0731,
+        "overall_rate": 0.2408,
+        "deviation": 0.1678,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "56-65+Divorced",
+        "n": 471,
+        "rate": 0.121,
+        "overall_rate": 0.2408,
+        "deviation": 0.1198
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "56-65+Married-civ-spouse",
+        "n": 1862,
+        "rate": 0.4323,
+        "overall_rate": 0.2408,
+        "deviation": 0.1915,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "56-65+Married-spouse-absent",
+        "n": 34,
+        "rate": 0.0882,
+        "overall_rate": 0.2408,
+        "deviation": 0.1526,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "56-65+Never-married",
+        "n": 175,
+        "rate": 0.1143,
+        "overall_rate": 0.2408,
+        "deviation": 0.1265
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "56-65+Separated",
+        "n": 69,
+        "rate": 0.1304,
+        "overall_rate": 0.2408,
+        "deviation": 0.1104
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "56-65+Widowed",
+        "n": 320,
+        "rate": 0.0906,
+        "overall_rate": 0.2408,
+        "deviation": 0.1502,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "65++Divorced",
+        "n": 99,
+        "rate": 0.0202,
+        "overall_rate": 0.2408,
+        "deviation": 0.2206,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "65++Married-AF-spouse",
+        "n": 1,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "65++Married-civ-spouse",
+        "n": 641,
+        "rate": 0.3011,
+        "overall_rate": 0.2408,
+        "deviation": 0.0603
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "65++Married-spouse-absent",
+        "n": 15,
+        "rate": 0.2,
+        "overall_rate": 0.2408,
+        "deviation": 0.0408,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "65++Never-married",
+        "n": 80,
+        "rate": 0.1,
+        "overall_rate": 0.2408,
+        "deviation": 0.1408
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "65++Separated",
+        "n": 14,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 marital_status",
+        "subgroup": "65++Widowed",
+        "n": 308,
+        "rate": 0.0877,
+        "overall_rate": 0.2408,
+        "deviation": 0.1531,
+        "flagged": true
       },
       {
         "intersection": "age_group \u00d7 race",
-        "subgroup": "18-25+Asian",
-        "n": 10,
-        "rate": 0.7,
-        "overall_rate": 0.63,
-        "deviation": 0.07,
-        "small_sample": true
+        "subgroup": "18-25+Amer-Indian-Eskimo",
+        "n": 59,
+        "rate": 0.0339,
+        "overall_rate": 0.2408,
+        "deviation": 0.2069,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "18-25+Asian-Pac-Islander",
+        "n": 190,
+        "rate": 0.0316,
+        "overall_rate": 0.2408,
+        "deviation": 0.2092,
+        "flagged": true
       },
       {
         "intersection": "age_group \u00d7 race",
         "subgroup": "18-25+Black",
-        "n": 19,
-        "rate": 0.6316,
-        "overall_rate": 0.63,
-        "deviation": 0.0016,
-        "small_sample": true
+        "n": 603,
+        "rate": 0.0133,
+        "overall_rate": 0.2408,
+        "deviation": 0.2275,
+        "flagged": true
       },
       {
         "intersection": "age_group \u00d7 race",
-        "subgroup": "18-25+Hispanic",
-        "n": 15,
-        "rate": 0.4,
-        "overall_rate": 0.63,
-        "deviation": 0.23,
-        "small_sample": true
+        "subgroup": "18-25+Other",
+        "n": 71,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
+        "flagged": true
       },
       {
         "intersection": "age_group \u00d7 race",
         "subgroup": "18-25+White",
-        "n": 34,
-        "rate": 0.7941,
-        "overall_rate": 0.63,
-        "deviation": 0.1641,
+        "n": 5488,
+        "rate": 0.0179,
+        "overall_rate": 0.2408,
+        "deviation": 0.223,
         "flagged": true
       },
       {
         "intersection": "age_group \u00d7 race",
-        "subgroup": "26-35+Asian",
-        "n": 17,
-        "rate": 0.5294,
-        "overall_rate": 0.63,
-        "deviation": 0.1006,
-        "small_sample": true
+        "subgroup": "26-35+Amer-Indian-Eskimo",
+        "n": 103,
+        "rate": 0.1165,
+        "overall_rate": 0.2408,
+        "deviation": 0.1243
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "26-35+Asian-Pac-Islander",
+        "n": 320,
+        "rate": 0.2375,
+        "overall_rate": 0.2408,
+        "deviation": 0.0033
       },
       {
         "intersection": "age_group \u00d7 race",
         "subgroup": "26-35+Black",
-        "n": 42,
-        "rate": 0.5,
-        "overall_rate": 0.63,
-        "deviation": 0.13
+        "n": 887,
+        "rate": 0.0812,
+        "overall_rate": 0.2408,
+        "deviation": 0.1596,
+        "flagged": true
       },
       {
         "intersection": "age_group \u00d7 race",
-        "subgroup": "26-35+Hispanic",
-        "n": 26,
-        "rate": 0.5385,
-        "overall_rate": 0.63,
-        "deviation": 0.0915
+        "subgroup": "26-35+Other",
+        "n": 102,
+        "rate": 0.049,
+        "overall_rate": 0.2408,
+        "deviation": 0.1918,
+        "flagged": true
       },
       {
         "intersection": "age_group \u00d7 race",
         "subgroup": "26-35+White",
-        "n": 81,
-        "rate": 0.6914,
-        "overall_rate": 0.63,
-        "deviation": 0.0614
+        "n": 7102,
+        "rate": 0.2008,
+        "overall_rate": 0.2408,
+        "deviation": 0.04
       },
       {
         "intersection": "age_group \u00d7 race",
-        "subgroup": "36-45+Asian",
-        "n": 25,
-        "rate": 0.76,
-        "overall_rate": 0.63,
-        "deviation": 0.13
+        "subgroup": "36-45+Amer-Indian-Eskimo",
+        "n": 71,
+        "rate": 0.1549,
+        "overall_rate": 0.2408,
+        "deviation": 0.0859
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "36-45+Asian-Pac-Islander",
+        "n": 276,
+        "rate": 0.3696,
+        "overall_rate": 0.2408,
+        "deviation": 0.1288
       },
       {
         "intersection": "age_group \u00d7 race",
         "subgroup": "36-45+Black",
-        "n": 45,
-        "rate": 0.4444,
-        "overall_rate": 0.63,
-        "deviation": 0.1856,
-        "flagged": true
+        "n": 805,
+        "rate": 0.1702,
+        "overall_rate": 0.2408,
+        "deviation": 0.0706
       },
       {
         "intersection": "age_group \u00d7 race",
-        "subgroup": "36-45+Hispanic",
-        "n": 26,
-        "rate": 0.4615,
-        "overall_rate": 0.63,
-        "deviation": 0.1685,
-        "flagged": true
+        "subgroup": "36-45+Other",
+        "n": 56,
+        "rate": 0.2321,
+        "overall_rate": 0.2408,
+        "deviation": 0.0087
       },
       {
         "intersection": "age_group \u00d7 race",
         "subgroup": "36-45+White",
-        "n": 79,
-        "rate": 0.7848,
-        "overall_rate": 0.63,
-        "deviation": 0.1548,
+        "n": 6801,
+        "rate": 0.3692,
+        "overall_rate": 0.2408,
+        "deviation": 0.1284
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "46-55+Amer-Indian-Eskimo",
+        "n": 49,
+        "rate": 0.1837,
+        "overall_rate": 0.2408,
+        "deviation": 0.0571
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "46-55+Asian-Pac-Islander",
+        "n": 155,
+        "rate": 0.4,
+        "overall_rate": 0.2408,
+        "deviation": 0.1592,
         "flagged": true
       },
       {
         "intersection": "age_group \u00d7 race",
-        "subgroup": "46-55+Asian",
-        "n": 2,
-        "rate": 0.5,
-        "overall_rate": 0.63,
-        "deviation": 0.13,
-        "small_sample": true
-      },
-      {
-        "intersection": "age_group \u00d7 race",
         "subgroup": "46-55+Black",
-        "n": 19,
-        "rate": 0.3158,
-        "overall_rate": 0.63,
-        "deviation": 0.3142,
-        "small_sample": true
+        "n": 513,
+        "rate": 0.2417,
+        "overall_rate": 0.2408,
+        "deviation": 0.0009
       },
       {
         "intersection": "age_group \u00d7 race",
-        "subgroup": "46-55+Hispanic",
-        "n": 6,
-        "rate": 0.6667,
-        "overall_rate": 0.63,
-        "deviation": 0.0367,
+        "subgroup": "46-55+Other",
+        "n": 29,
+        "rate": 0.2069,
+        "overall_rate": 0.2408,
+        "deviation": 0.0339,
         "small_sample": true
       },
       {
         "intersection": "age_group \u00d7 race",
         "subgroup": "46-55+White",
-        "n": 41,
-        "rate": 0.7805,
-        "overall_rate": 0.63,
-        "deviation": 0.1505,
+        "n": 4792,
+        "rate": 0.4184,
+        "overall_rate": 0.2408,
+        "deviation": 0.1776,
         "flagged": true
       },
       {
         "intersection": "age_group \u00d7 race",
-        "subgroup": "56-65+Asian",
-        "n": 1,
-        "rate": 0.0,
-        "overall_rate": 0.63,
-        "deviation": 0.63,
+        "subgroup": "56-65+Amer-Indian-Eskimo",
+        "n": 22,
+        "rate": 0.0909,
+        "overall_rate": 0.2408,
+        "deviation": 0.1499,
         "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "56-65+Asian-Pac-Islander",
+        "n": 71,
+        "rate": 0.3803,
+        "overall_rate": 0.2408,
+        "deviation": 0.1395
       },
       {
         "intersection": "age_group \u00d7 race",
         "subgroup": "56-65+Black",
-        "n": 3,
-        "rate": 0.6667,
-        "overall_rate": 0.63,
-        "deviation": 0.0367,
-        "small_sample": true
+        "n": 235,
+        "rate": 0.166,
+        "overall_rate": 0.2408,
+        "deviation": 0.0749
       },
       {
         "intersection": "age_group \u00d7 race",
-        "subgroup": "56-65+Hispanic",
-        "n": 3,
-        "rate": 0.3333,
-        "overall_rate": 0.63,
-        "deviation": 0.2967,
+        "subgroup": "56-65+Other",
+        "n": 10,
+        "rate": 0.1,
+        "overall_rate": 0.2408,
+        "deviation": 0.1408,
         "small_sample": true
       },
       {
         "intersection": "age_group \u00d7 race",
         "subgroup": "56-65+White",
-        "n": 6,
-        "rate": 0.6667,
-        "overall_rate": 0.63,
-        "deviation": 0.0367,
+        "n": 2593,
+        "rate": 0.3293,
+        "overall_rate": 0.2408,
+        "deviation": 0.0885
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "65++Amer-Indian-Eskimo",
+        "n": 7,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
         "small_sample": true
       },
       {
-        "intersection": "gender \u00d7 race",
-        "subgroup": "Female+Asian",
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "65++Asian-Pac-Islander",
+        "n": 27,
+        "rate": 0.1111,
+        "overall_rate": 0.2408,
+        "deviation": 0.1297,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "65++Black",
+        "n": 81,
+        "rate": 0.0864,
+        "overall_rate": 0.2408,
+        "deviation": 0.1544,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "65++Other",
+        "n": 3,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
+        "small_sample": true
+      },
+      {
+        "intersection": "age_group \u00d7 race",
+        "subgroup": "65++White",
+        "n": 1040,
+        "rate": 0.2144,
+        "overall_rate": 0.2408,
+        "deviation": 0.0264
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "18-25+Female",
+        "n": 2821,
+        "rate": 0.0113,
+        "overall_rate": 0.2408,
+        "deviation": 0.2295,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "18-25+Male",
+        "n": 3590,
+        "rate": 0.0228,
+        "overall_rate": 0.2408,
+        "deviation": 0.218,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "26-35+Female",
+        "n": 2733,
+        "rate": 0.112,
+        "overall_rate": 0.2408,
+        "deviation": 0.1288
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "26-35+Male",
+        "n": 5781,
+        "rate": 0.2223,
+        "overall_rate": 0.2408,
+        "deviation": 0.0185
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "36-45+Female",
+        "n": 2385,
+        "rate": 0.1811,
+        "overall_rate": 0.2408,
+        "deviation": 0.0597
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "36-45+Male",
+        "n": 5624,
+        "rate": 0.4164,
+        "overall_rate": 0.2408,
+        "deviation": 0.1756,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "46-55+Female",
+        "n": 1615,
+        "rate": 0.1697,
+        "overall_rate": 0.2408,
+        "deviation": 0.0712
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "46-55+Male",
+        "n": 3923,
+        "rate": 0.4925,
+        "overall_rate": 0.2408,
+        "deviation": 0.2517,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "56-65+Female",
+        "n": 833,
+        "rate": 0.1297,
+        "overall_rate": 0.2408,
+        "deviation": 0.1112
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "56-65+Male",
+        "n": 2098,
+        "rate": 0.3885,
+        "overall_rate": 0.2408,
+        "deviation": 0.1477
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "65++Female",
+        "n": 384,
+        "rate": 0.0703,
+        "overall_rate": 0.2408,
+        "deviation": 0.1705,
+        "flagged": true
+      },
+      {
+        "intersection": "age_group \u00d7 gender",
+        "subgroup": "65++Male",
+        "n": 774,
+        "rate": 0.2661,
+        "overall_rate": 0.2408,
+        "deviation": 0.0253
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Divorced+Amer-Indian-Eskimo",
+        "n": 60,
+        "rate": 0.1,
+        "overall_rate": 0.2408,
+        "deviation": 0.1408
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Divorced+Asian-Pac-Islander",
+        "n": 75,
+        "rate": 0.12,
+        "overall_rate": 0.2408,
+        "deviation": 0.1208
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Divorced+Black",
+        "n": 485,
+        "rate": 0.0804,
+        "overall_rate": 0.2408,
+        "deviation": 0.1604,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Divorced+Other",
+        "n": 26,
+        "rate": 0.0385,
+        "overall_rate": 0.2408,
+        "deviation": 0.2023,
+        "small_sample": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Divorced+White",
+        "n": 3797,
+        "rate": 0.1075,
+        "overall_rate": 0.2408,
+        "deviation": 0.1334
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Married-AF-spouse+Black",
+        "n": 1,
+        "rate": 1.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.7592,
+        "small_sample": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Married-AF-spouse+White",
+        "n": 22,
+        "rate": 0.4091,
+        "overall_rate": 0.2408,
+        "deviation": 0.1683,
+        "small_sample": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Married-civ-spouse+Amer-Indian-Eskimo",
+        "n": 116,
+        "rate": 0.2155,
+        "overall_rate": 0.2408,
+        "deviation": 0.0253
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Married-civ-spouse+Asian-Pac-Islander",
+        "n": 508,
+        "rate": 0.4626,
+        "overall_rate": 0.2408,
+        "deviation": 0.2218,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Married-civ-spouse+Black",
+        "n": 837,
+        "rate": 0.3644,
+        "overall_rate": 0.2408,
+        "deviation": 0.1236
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Married-civ-spouse+Other",
+        "n": 105,
+        "rate": 0.2095,
+        "overall_rate": 0.2408,
+        "deviation": 0.0313
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Married-civ-spouse+White",
+        "n": 13410,
+        "rate": 0.4553,
+        "overall_rate": 0.2408,
+        "deviation": 0.2144,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Married-spouse-absent+Amer-Indian-Eskimo",
+        "n": 9,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
+        "small_sample": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Married-spouse-absent+Asian-Pac-Islander",
+        "n": 41,
+        "rate": 0.0976,
+        "overall_rate": 0.2408,
+        "deviation": 0.1432
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Married-spouse-absent+Black",
+        "n": 62,
+        "rate": 0.0323,
+        "overall_rate": 0.2408,
+        "deviation": 0.2086,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Married-spouse-absent+Other",
+        "n": 15,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
+        "small_sample": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Married-spouse-absent+White",
+        "n": 291,
+        "rate": 0.0962,
+        "overall_rate": 0.2408,
+        "deviation": 0.1446
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Never-married+Amer-Indian-Eskimo",
+        "n": 103,
+        "rate": 0.0485,
+        "overall_rate": 0.2408,
+        "deviation": 0.1923,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Never-married+Asian-Pac-Islander",
+        "n": 372,
+        "rate": 0.0565,
+        "overall_rate": 0.2408,
+        "deviation": 0.1844,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Never-married+Black",
+        "n": 1346,
+        "rate": 0.0253,
+        "overall_rate": 0.2408,
+        "deviation": 0.2155,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Never-married+Other",
+        "n": 105,
+        "rate": 0.019,
+        "overall_rate": 0.2408,
+        "deviation": 0.2218,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Never-married+White",
+        "n": 8757,
+        "rate": 0.049,
+        "overall_rate": 0.2408,
+        "deviation": 0.1918,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Separated+Amer-Indian-Eskimo",
+        "n": 11,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
+        "small_sample": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Separated+Asian-Pac-Islander",
         "n": 19,
-        "rate": 0.5789,
-        "overall_rate": 0.63,
-        "deviation": 0.0511,
+        "rate": 0.2105,
+        "overall_rate": 0.2408,
+        "deviation": 0.0303,
         "small_sample": true
       },
       {
-        "intersection": "gender \u00d7 race",
-        "subgroup": "Female+Black",
-        "n": 61,
-        "rate": 0.4754,
-        "overall_rate": 0.63,
-        "deviation": 0.1546,
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Separated+Black",
+        "n": 265,
+        "rate": 0.0189,
+        "overall_rate": 0.2408,
+        "deviation": 0.2219,
         "flagged": true
       },
       {
-        "intersection": "gender \u00d7 race",
-        "subgroup": "Female+Hispanic",
-        "n": 32,
-        "rate": 0.4375,
-        "overall_rate": 0.63,
-        "deviation": 0.1925,
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Separated+Other",
+        "n": 13,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
+        "small_sample": true
+      },
+      {
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Separated+White",
+        "n": 717,
+        "rate": 0.0795,
+        "overall_rate": 0.2408,
+        "deviation": 0.1613,
         "flagged": true
       },
       {
-        "intersection": "gender \u00d7 race",
-        "subgroup": "Female+White",
-        "n": 101,
-        "rate": 0.6832,
-        "overall_rate": 0.63,
-        "deviation": 0.0532
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Widowed+Amer-Indian-Eskimo",
+        "n": 12,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
+        "small_sample": true
       },
       {
-        "intersection": "gender \u00d7 race",
-        "subgroup": "Male+Asian",
-        "n": 36,
-        "rate": 0.6944,
-        "overall_rate": 0.63,
-        "deviation": 0.0644
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Widowed+Asian-Pac-Islander",
+        "n": 24,
+        "rate": 0.125,
+        "overall_rate": 0.2408,
+        "deviation": 0.1158,
+        "small_sample": true
       },
       {
-        "intersection": "gender \u00d7 race",
-        "subgroup": "Male+Black",
-        "n": 67,
-        "rate": 0.4776,
-        "overall_rate": 0.63,
-        "deviation": 0.1524,
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Widowed+Black",
+        "n": 128,
+        "rate": 0.0078,
+        "overall_rate": 0.2408,
+        "deviation": 0.233,
         "flagged": true
       },
       {
-        "intersection": "gender \u00d7 race",
-        "subgroup": "Male+Hispanic",
-        "n": 44,
-        "rate": 0.5227,
-        "overall_rate": 0.63,
-        "deviation": 0.1073
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Widowed+Other",
+        "n": 7,
+        "rate": 0.0,
+        "overall_rate": 0.2408,
+        "deviation": 0.2408,
+        "small_sample": true
       },
       {
-        "intersection": "gender \u00d7 race",
-        "subgroup": "Male+White",
-        "n": 140,
-        "rate": 0.8,
-        "overall_rate": 0.63,
-        "deviation": 0.17,
+        "intersection": "marital_status \u00d7 race",
+        "subgroup": "Widowed+White",
+        "n": 822,
+        "rate": 0.0985,
+        "overall_rate": 0.2408,
+        "deviation": 0.1423
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Divorced+Female",
+        "n": 2672,
+        "rate": 0.067,
+        "overall_rate": 0.2408,
+        "deviation": 0.1738,
         "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Divorced+Male",
+        "n": 1771,
+        "rate": 0.1604,
+        "overall_rate": 0.2408,
+        "deviation": 0.0804
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Married-AF-spouse+Female",
+        "n": 14,
+        "rate": 0.4286,
+        "overall_rate": 0.2408,
+        "deviation": 0.1878,
+        "small_sample": true
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Married-AF-spouse+Male",
+        "n": 9,
+        "rate": 0.4444,
+        "overall_rate": 0.2408,
+        "deviation": 0.2036,
+        "small_sample": true
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Married-civ-spouse+Female",
+        "n": 1657,
+        "rate": 0.455,
+        "overall_rate": 0.2408,
+        "deviation": 0.2142,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Married-civ-spouse+Male",
+        "n": 13319,
+        "rate": 0.4458,
+        "overall_rate": 0.2408,
+        "deviation": 0.205,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Married-spouse-absent+Female",
+        "n": 205,
+        "rate": 0.0537,
+        "overall_rate": 0.2408,
+        "deviation": 0.1872,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Married-spouse-absent+Male",
+        "n": 213,
+        "rate": 0.108,
+        "overall_rate": 0.2408,
+        "deviation": 0.1328
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Never-married+Female",
+        "n": 4767,
+        "rate": 0.0348,
+        "overall_rate": 0.2408,
+        "deviation": 0.206,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Never-married+Male",
+        "n": 5916,
+        "rate": 0.0549,
+        "overall_rate": 0.2408,
+        "deviation": 0.1859,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Separated+Female",
+        "n": 631,
+        "rate": 0.0269,
+        "overall_rate": 0.2408,
+        "deviation": 0.2139,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Separated+Male",
+        "n": 394,
+        "rate": 0.1244,
+        "overall_rate": 0.2408,
+        "deviation": 0.1164
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Widowed+Female",
+        "n": 825,
+        "rate": 0.0558,
+        "overall_rate": 0.2408,
+        "deviation": 0.1851,
+        "flagged": true
+      },
+      {
+        "intersection": "marital_status \u00d7 gender",
+        "subgroup": "Widowed+Male",
+        "n": 168,
+        "rate": 0.2321,
+        "overall_rate": 0.2408,
+        "deviation": 0.0087
+      },
+      {
+        "intersection": "race \u00d7 gender",
+        "subgroup": "Amer-Indian-Eskimo+Female",
+        "n": 119,
+        "rate": 0.1008,
+        "overall_rate": 0.2408,
+        "deviation": 0.14
+      },
+      {
+        "intersection": "race \u00d7 gender",
+        "subgroup": "Amer-Indian-Eskimo+Male",
+        "n": 192,
+        "rate": 0.125,
+        "overall_rate": 0.2408,
+        "deviation": 0.1158
+      },
+      {
+        "intersection": "race \u00d7 gender",
+        "subgroup": "Asian-Pac-Islander+Female",
+        "n": 346,
+        "rate": 0.1243,
+        "overall_rate": 0.2408,
+        "deviation": 0.1165
+      },
+      {
+        "intersection": "race \u00d7 gender",
+        "subgroup": "Asian-Pac-Islander+Male",
+        "n": 693,
+        "rate": 0.3362,
+        "overall_rate": 0.2408,
+        "deviation": 0.0954
+      },
+      {
+        "intersection": "race \u00d7 gender",
+        "subgroup": "Black+Female",
+        "n": 1555,
+        "rate": 0.0579,
+        "overall_rate": 0.2408,
+        "deviation": 0.1829,
+        "flagged": true
+      },
+      {
+        "intersection": "race \u00d7 gender",
+        "subgroup": "Black+Male",
+        "n": 1569,
+        "rate": 0.1893,
+        "overall_rate": 0.2408,
+        "deviation": 0.0515
+      },
+      {
+        "intersection": "race \u00d7 gender",
+        "subgroup": "Other+Female",
+        "n": 109,
+        "rate": 0.055,
+        "overall_rate": 0.2408,
+        "deviation": 0.1858,
+        "flagged": true
+      },
+      {
+        "intersection": "race \u00d7 gender",
+        "subgroup": "Other+Male",
+        "n": 162,
+        "rate": 0.1173,
+        "overall_rate": 0.2408,
+        "deviation": 0.1235
+      },
+      {
+        "intersection": "race \u00d7 gender",
+        "subgroup": "White+Female",
+        "n": 8642,
+        "rate": 0.119,
+        "overall_rate": 0.2408,
+        "deviation": 0.1219
+      },
+      {
+        "intersection": "race \u00d7 gender",
+        "subgroup": "White+Male",
+        "n": 19174,
+        "rate": 0.3176,
+        "overall_rate": 0.2408,
+        "deviation": 0.0768
       }
     ],
     "issues": [
-      "46-55+Female: 46% vs 63%",
-      "18-25+White: 79% vs 63%",
-      "36-45+Black: 44% vs 63%",
-      "36-45+Hispanic: 46% vs 63%",
-      "36-45+White: 78% vs 63%",
-      "46-55+White: 78% vs 63%",
-      "Female+Black: 48% vs 63%",
-      "Female+Hispanic: 44% vs 63%",
-      "Male+Black: 48% vs 63%",
-      "Male+White: 80% vs 63%"
+      "18-25+Divorced: 1% vs 24%",
+      "18-25+Married-spouse-absent: 0% vs 24%",
+      "18-25+Never-married: 1% vs 24%",
+      "18-25+Separated: 3% vs 24%",
+      "26-35+Divorced: 6% vs 24%",
+      "26-35+Married-spouse-absent: 3% vs 24%",
+      "26-35+Never-married: 6% vs 24%",
+      "26-35+Separated: 5% vs 24%",
+      "36-45+Married-civ-spouse: 52% vs 24%",
+      "36-45+Separated: 7% vs 24%",
+      "36-45+Widowed: 8% vs 24%",
+      "46-55+Married-civ-spouse: 55% vs 24%",
+      "46-55+Separated: 7% vs 24%",
+      "46-55+Widowed: 7% vs 24%",
+      "56-65+Married-civ-spouse: 43% vs 24%",
+      "56-65+Married-spouse-absent: 9% vs 24%",
+      "56-65+Widowed: 9% vs 24%",
+      "65++Divorced: 2% vs 24%",
+      "65++Widowed: 9% vs 24%",
+      "18-25+Amer-Indian-Eskimo: 3% vs 24%",
+      "18-25+Asian-Pac-Islander: 3% vs 24%",
+      "18-25+Black: 1% vs 24%",
+      "18-25+Other: 0% vs 24%",
+      "18-25+White: 2% vs 24%",
+      "26-35+Black: 8% vs 24%",
+      "26-35+Other: 5% vs 24%",
+      "46-55+Asian-Pac-Islander: 40% vs 24%",
+      "46-55+White: 42% vs 24%",
+      "65++Black: 9% vs 24%",
+      "18-25+Female: 1% vs 24%",
+      "18-25+Male: 2% vs 24%",
+      "36-45+Male: 42% vs 24%",
+      "46-55+Male: 49% vs 24%",
+      "65++Female: 7% vs 24%",
+      "Divorced+Black: 8% vs 24%",
+      "Married-civ-spouse+Asian-Pac-Islander: 46% vs 24%",
+      "Married-civ-spouse+White: 46% vs 24%",
+      "Married-spouse-absent+Black: 3% vs 24%",
+      "Never-married+Amer-Indian-Eskimo: 5% vs 24%",
+      "Never-married+Asian-Pac-Islander: 6% vs 24%",
+      "Never-married+Black: 3% vs 24%",
+      "Never-married+Other: 2% vs 24%",
+      "Never-married+White: 5% vs 24%",
+      "Separated+Black: 2% vs 24%",
+      "Separated+White: 8% vs 24%",
+      "Widowed+Black: 1% vs 24%",
+      "Divorced+Female: 7% vs 24%",
+      "Married-civ-spouse+Female: 46% vs 24%",
+      "Married-civ-spouse+Male: 45% vs 24%",
+      "Married-spouse-absent+Female: 5% vs 24%",
+      "Never-married+Female: 3% vs 24%",
+      "Never-married+Male: 5% vs 24%",
+      "Separated+Female: 3% vs 24%",
+      "Widowed+Female: 6% vs 24%",
+      "Black+Female: 6% vs 24%",
+      "Other+Female: 6% vs 24%"
     ],
     "worst": {
-      "intersection": "age_group \u00d7 race",
-      "subgroup": "56-65+Asian",
+      "intersection": "marital_status \u00d7 race",
+      "subgroup": "Married-AF-spouse+Black",
       "n": 1,
-      "rate": 0.0,
-      "overall_rate": 0.63,
-      "deviation": 0.63,
+      "rate": 1.0,
+      "overall_rate": 0.2408,
+      "deviation": 0.7592,
       "small_sample": true
     }
   },
@@ -460,390 +1409,791 @@
     "status": "WARN",
     "proxies": [
       {
-        "feature": "zip_code",
-        "protected_attr": "race",
-        "correlation": -0.6479,
+        "feature": "relationship",
+        "protected_attr": "gender",
+        "correlation": -0.5825,
         "p_value": 0.0,
         "risk": "MEDIUM"
       }
     ],
     "shap_top": [
       {
-        "feature": "zip_code",
-        "mean_abs_shap": 0.3795
+        "feature": "relationship",
+        "mean_abs_shap": 1.022
       },
       {
-        "feature": "income",
-        "mean_abs_shap": 0.2957
+        "feature": "education_num",
+        "mean_abs_shap": 0.4586
       },
       {
-        "feature": "credit_score",
-        "mean_abs_shap": 0.2331
+        "feature": "capital_gain",
+        "mean_abs_shap": 0.311
       },
       {
-        "feature": "years_experience",
-        "mean_abs_shap": 0.1531
+        "feature": "hours_per_week",
+        "mean_abs_shap": 0.2262
+      },
+      {
+        "feature": "occupation",
+        "mean_abs_shap": 0.1271
       }
     ],
     "issues": [
-      "zip_code MEDIUM proxy for race"
+      "relationship MEDIUM proxy for gender"
     ]
   },
   "layer4": {
     "status": "WARN",
     "distributions": [
       {
-        "feature": "zip_code",
+        "feature": "fnlwgt",
         "protected_attr": "age_group",
         "group_stats": {
           "36-45": {
-            "mean": 16574.21,
-            "std": 9328.57,
-            "n": 175
-          },
-          "18-25": {
-            "mean": 18336.19,
-            "std": 9857.84,
-            "n": 78
-          },
-          "26-35": {
-            "mean": 15544.83,
-            "std": 8348.67,
-            "n": 166
+            "mean": 188960.63,
+            "std": 107248.04,
+            "n": 8009
           },
           "46-55": {
-            "mean": 13826.51,
-            "std": 6236.11,
-            "n": 68
+            "mean": 180444.08,
+            "std": 95565.46,
+            "n": 5538
+          },
+          "26-35": {
+            "mean": 194276.79,
+            "std": 109615.2,
+            "n": 8514
+          },
+          "18-25": {
+            "mean": 201109.01,
+            "std": 110642.4,
+            "n": 6411
+          },
+          "56-65": {
+            "mean": 177780.02,
+            "std": 96195.14,
+            "n": 2931
+          },
+          "65+": {
+            "mean": 174639.61,
+            "std": 93090.45,
+            "n": 1158
           }
         },
-        "max_mean_diff": 4509.68,
-        "pooled_std": 8442.8,
-        "sd_gap": 0.53
+        "max_mean_diff": 26469.4,
+        "pooled_std": 102059.45,
+        "sd_gap": 0.26
       },
       {
-        "feature": "years_experience",
+        "feature": "education_num",
         "protected_attr": "age_group",
         "group_stats": {
           "36-45": {
-            "mean": 8.81,
-            "std": 4.63,
-            "n": 175
-          },
-          "18-25": {
-            "mean": 8.47,
-            "std": 4.92,
-            "n": 78
-          },
-          "26-35": {
-            "mean": 9.39,
-            "std": 4.95,
-            "n": 166
+            "mean": 10.54,
+            "std": 2.51,
+            "n": 8009
           },
           "46-55": {
-            "mean": 9.11,
-            "std": 4.79,
-            "n": 68
+            "mean": 10.29,
+            "std": 2.79,
+            "n": 5538
+          },
+          "26-35": {
+            "mean": 10.25,
+            "std": 2.4,
+            "n": 8514
+          },
+          "18-25": {
+            "mean": 9.41,
+            "std": 2.06,
+            "n": 6411
+          },
+          "56-65": {
+            "mean": 9.64,
+            "std": 3.03,
+            "n": 2931
+          },
+          "65+": {
+            "mean": 9.43,
+            "std": 3.34,
+            "n": 1158
           }
         },
-        "max_mean_diff": 0.92,
-        "pooled_std": 4.82,
-        "sd_gap": 0.19
+        "max_mean_diff": 1.13,
+        "pooled_std": 2.69,
+        "sd_gap": 0.42
       },
       {
-        "feature": "income",
+        "feature": "capital_gain",
         "protected_attr": "age_group",
         "group_stats": {
           "36-45": {
-            "mean": 57764.07,
-            "std": 20097.14,
-            "n": 175
-          },
-          "18-25": {
-            "mean": 56097.28,
-            "std": 20715.17,
-            "n": 78
-          },
-          "26-35": {
-            "mean": 57077.8,
-            "std": 20036.93,
-            "n": 166
+            "mean": 1351.46,
+            "std": 8090.85,
+            "n": 8009
           },
           "46-55": {
-            "mean": 55660.13,
-            "std": 20238.98,
-            "n": 68
+            "mean": 1984.4,
+            "std": 10810.24,
+            "n": 5538
+          },
+          "26-35": {
+            "mean": 628.01,
+            "std": 5084.96,
+            "n": 8514
+          },
+          "18-25": {
+            "mean": 186.21,
+            "std": 2780.53,
+            "n": 6411
+          },
+          "56-65": {
+            "mean": 1547.31,
+            "std": 8946.59,
+            "n": 2931
+          },
+          "65+": {
+            "mean": 1899.87,
+            "std": 8672.89,
+            "n": 1158
           }
         },
-        "max_mean_diff": 2103.94,
-        "pooled_std": 20272.06,
-        "sd_gap": 0.1
+        "max_mean_diff": 1798.19,
+        "pooled_std": 7397.68,
+        "sd_gap": 0.24
       },
       {
-        "feature": "credit_score",
+        "feature": "capital_loss",
         "protected_attr": "age_group",
         "group_stats": {
           "36-45": {
-            "mean": 704.35,
-            "std": 50.56,
-            "n": 175
-          },
-          "18-25": {
-            "mean": 701.24,
-            "std": 56.79,
-            "n": 78
-          },
-          "26-35": {
-            "mean": 703.7,
-            "std": 48.85,
-            "n": 166
+            "mean": 108.03,
+            "std": 446.39,
+            "n": 8009
           },
           "46-55": {
-            "mean": 697.93,
-            "std": 43.22,
-            "n": 68
+            "mean": 113.99,
+            "std": 459.0,
+            "n": 5538
+          },
+          "26-35": {
+            "mean": 78.02,
+            "std": 374.32,
+            "n": 8514
+          },
+          "18-25": {
+            "mean": 39.08,
+            "std": 261.42,
+            "n": 6411
+          },
+          "56-65": {
+            "mean": 98.51,
+            "std": 429.28,
+            "n": 2931
+          },
+          "65+": {
+            "mean": 123.24,
+            "std": 533.3,
+            "n": 1158
           }
         },
-        "max_mean_diff": 6.42,
-        "pooled_std": 49.85,
-        "sd_gap": 0.13
+        "max_mean_diff": 84.16,
+        "pooled_std": 417.29,
+        "sd_gap": 0.2
       },
       {
-        "feature": "zip_code",
-        "protected_attr": "gender",
+        "feature": "hours_per_week",
+        "protected_attr": "age_group",
         "group_stats": {
-          "Female": {
-            "mean": 15965.19,
-            "std": 8334.63,
-            "n": 213
+          "36-45": {
+            "mean": 43.41,
+            "std": 10.98,
+            "n": 8009
           },
-          "Male": {
-            "mean": 16309.38,
-            "std": 9176.43,
-            "n": 287
+          "46-55": {
+            "mean": 43.18,
+            "std": 10.76,
+            "n": 5538
+          },
+          "26-35": {
+            "mean": 42.54,
+            "std": 10.82,
+            "n": 8514
+          },
+          "18-25": {
+            "mean": 33.89,
+            "std": 12.43,
+            "n": 6411
+          },
+          "56-65": {
+            "mean": 39.82,
+            "std": 12.77,
+            "n": 2931
+          },
+          "65+": {
+            "mean": 29.03,
+            "std": 16.5,
+            "n": 1158
           }
         },
-        "max_mean_diff": 344.19,
-        "pooled_std": 8755.53,
-        "sd_gap": 0.04
-      },
-      {
-        "feature": "years_experience",
-        "protected_attr": "gender",
-        "group_stats": {
-          "Female": {
-            "mean": 7.64,
-            "std": 4.41,
-            "n": 213
-          },
-          "Male": {
-            "mean": 10.05,
-            "std": 4.92,
-            "n": 287
-          }
-        },
-        "max_mean_diff": 2.41,
-        "pooled_std": 4.67,
-        "sd_gap": 0.52
-      },
-      {
-        "feature": "income",
-        "protected_attr": "gender",
-        "group_stats": {
-          "Female": {
-            "mean": 57101.62,
-            "std": 20129.41,
-            "n": 213
-          },
-          "Male": {
-            "mean": 56801.22,
-            "std": 19966.02,
-            "n": 287
-          }
-        },
-        "max_mean_diff": 300.4,
-        "pooled_std": 20047.72,
-        "sd_gap": 0.01
-      },
-      {
-        "feature": "credit_score",
-        "protected_attr": "gender",
-        "group_stats": {
-          "Female": {
-            "mean": 705.61,
-            "std": 50.82,
-            "n": 213
-          },
-          "Male": {
-            "mean": 701.03,
-            "std": 49.27,
-            "n": 287
-          }
-        },
-        "max_mean_diff": 4.58,
-        "pooled_std": 50.05,
-        "sd_gap": 0.09
-      },
-      {
-        "feature": "zip_code",
-        "protected_attr": "race",
-        "group_stats": {
-          "White": {
-            "mean": 10003.21,
-            "std": 1.42,
-            "n": 241
-          },
-          "Asian": {
-            "mean": 26365.4,
-            "std": 15075.61,
-            "n": 55
-          },
-          "Black": {
-            "mean": 20002.93,
-            "std": 1.43,
-            "n": 128
-          },
-          "Hispanic": {
-            "mean": 21843.86,
-            "std": 9894.4,
-            "n": 76
-          }
-        },
-        "max_mean_diff": 16362.19,
-        "pooled_std": 6243.22,
-        "sd_gap": 2.62,
+        "max_mean_diff": 14.38,
+        "pooled_std": 12.38,
+        "sd_gap": 1.16,
         "flagged": true
       },
       {
-        "feature": "years_experience",
-        "protected_attr": "race",
+        "feature": "fnlwgt",
+        "protected_attr": "marital_status",
         "group_stats": {
-          "White": {
-            "mean": 8.62,
-            "std": 4.76,
-            "n": 241
+          "Never-married": {
+            "mean": 195383.31,
+            "std": 107765.35,
+            "n": 10683
           },
-          "Asian": {
-            "mean": 9.63,
-            "std": 4.7,
-            "n": 55
+          "Married-civ-spouse": {
+            "mean": 186763.17,
+            "std": 103097.54,
+            "n": 14976
           },
-          "Black": {
-            "mean": 9.23,
-            "std": 5.08,
-            "n": 128
+          "Divorced": {
+            "mean": 185802.79,
+            "std": 105646.79,
+            "n": 4443
           },
-          "Hispanic": {
-            "mean": 9.52,
-            "std": 4.84,
-            "n": 76
+          "Married-spouse-absent": {
+            "mean": 193141.76,
+            "std": 114937.6,
+            "n": 418
+          },
+          "Separated": {
+            "mean": 206444.33,
+            "std": 117601.33,
+            "n": 1025
+          },
+          "Widowed": {
+            "mean": 174159.04,
+            "std": 94005.38,
+            "n": 993
           }
         },
-        "max_mean_diff": 1.01,
-        "pooled_std": 4.85,
-        "sd_gap": 0.21
+        "max_mean_diff": 32285.29,
+        "pooled_std": 107175.66,
+        "sd_gap": 0.3
       },
       {
-        "feature": "income",
-        "protected_attr": "race",
+        "feature": "education_num",
+        "protected_attr": "marital_status",
         "group_stats": {
-          "White": {
-            "mean": 60579.93,
-            "std": 18771.84,
-            "n": 241
+          "Never-married": {
+            "mean": 9.96,
+            "std": 2.39,
+            "n": 10683
           },
-          "Asian": {
-            "mean": 63777.33,
-            "std": 21334.86,
-            "n": 55
+          "Married-civ-spouse": {
+            "mean": 10.32,
+            "std": 2.72,
+            "n": 14976
           },
-          "Black": {
-            "mean": 48252.05,
-            "std": 18145.46,
-            "n": 128
+          "Divorced": {
+            "mean": 10.03,
+            "std": 2.28,
+            "n": 4443
           },
-          "Hispanic": {
-            "mean": 55010.74,
-            "std": 21054.86,
-            "n": 76
+          "Married-spouse-absent": {
+            "mean": 9.31,
+            "std": 3.26,
+            "n": 418
+          },
+          "Separated": {
+            "mean": 9.29,
+            "std": 2.46,
+            "n": 1025
+          },
+          "Widowed": {
+            "mean": 9.09,
+            "std": 2.73,
+            "n": 993
           }
         },
-        "max_mean_diff": 15525.28,
-        "pooled_std": 19826.75,
-        "sd_gap": 0.78
+        "max_mean_diff": 1.23,
+        "pooled_std": 2.64,
+        "sd_gap": 0.47
       },
       {
-        "feature": "credit_score",
+        "feature": "capital_gain",
+        "protected_attr": "marital_status",
+        "group_stats": {
+          "Never-married": {
+            "mean": 376.59,
+            "std": 3810.42,
+            "n": 10683
+          },
+          "Married-civ-spouse": {
+            "mean": 1764.86,
+            "std": 9723.44,
+            "n": 14976
+          },
+          "Divorced": {
+            "mean": 728.41,
+            "std": 5571.54,
+            "n": 4443
+          },
+          "Married-spouse-absent": {
+            "mean": 653.98,
+            "std": 5534.49,
+            "n": 418
+          },
+          "Separated": {
+            "mean": 535.57,
+            "std": 4894.36,
+            "n": 1025
+          },
+          "Widowed": {
+            "mean": 571.07,
+            "std": 4046.1,
+            "n": 993
+          }
+        },
+        "max_mean_diff": 1388.27,
+        "pooled_std": 5596.72,
+        "sd_gap": 0.25
+      },
+      {
+        "feature": "capital_loss",
+        "protected_attr": "marital_status",
+        "group_stats": {
+          "Never-married": {
+            "mean": 52.35,
+            "std": 307.4,
+            "n": 10683
+          },
+          "Married-civ-spouse": {
+            "mean": 122.44,
+            "std": 472.21,
+            "n": 14976
+          },
+          "Divorced": {
+            "mean": 64.6,
+            "std": 349.67,
+            "n": 4443
+          },
+          "Married-spouse-absent": {
+            "mean": 57.78,
+            "std": 317.51,
+            "n": 418
+          },
+          "Separated": {
+            "mean": 58.11,
+            "std": 364.03,
+            "n": 1025
+          },
+          "Widowed": {
+            "mean": 79.67,
+            "std": 428.74,
+            "n": 993
+          }
+        },
+        "max_mean_diff": 70.09,
+        "pooled_std": 373.26,
+        "sd_gap": 0.19
+      },
+      {
+        "feature": "hours_per_week",
+        "protected_attr": "marital_status",
+        "group_stats": {
+          "Never-married": {
+            "mean": 36.94,
+            "std": 12.43,
+            "n": 10683
+          },
+          "Married-civ-spouse": {
+            "mean": 43.28,
+            "std": 11.91,
+            "n": 14976
+          },
+          "Divorced": {
+            "mean": 41.25,
+            "std": 10.68,
+            "n": 4443
+          },
+          "Married-spouse-absent": {
+            "mean": 39.67,
+            "std": 11.77,
+            "n": 418
+          },
+          "Separated": {
+            "mean": 39.3,
+            "std": 10.38,
+            "n": 1025
+          },
+          "Widowed": {
+            "mean": 32.98,
+            "std": 14.06,
+            "n": 993
+          }
+        },
+        "max_mean_diff": 10.3,
+        "pooled_std": 11.87,
+        "sd_gap": 0.87
+      },
+      {
+        "feature": "fnlwgt",
         "protected_attr": "race",
         "group_stats": {
           "White": {
-            "mean": 702.43,
-            "std": 51.99,
-            "n": 241
-          },
-          "Asian": {
-            "mean": 710.44,
-            "std": 51.22,
-            "n": 55
+            "mean": 187298.06,
+            "std": 103124.94,
+            "n": 27816
           },
           "Black": {
-            "mean": 699.2,
-            "std": 46.13,
-            "n": 128
+            "mean": 228013.12,
+            "std": 123600.68,
+            "n": 3124
           },
-          "Hispanic": {
-            "mean": 705.68,
-            "std": 48.76,
-            "n": 76
+          "Asian-Pac-Islander": {
+            "mean": 159940.61,
+            "std": 85122.31,
+            "n": 1039
+          },
+          "Amer-Indian-Eskimo": {
+            "mean": 120831.15,
+            "std": 88338.64,
+            "n": 311
+          },
+          "Other": {
+            "mean": 197124.19,
+            "std": 88856.78,
+            "n": 271
           }
         },
-        "max_mean_diff": 11.24,
-        "pooled_std": 49.52,
-        "sd_gap": 0.23
+        "max_mean_diff": 107181.97,
+        "pooled_std": 97808.67,
+        "sd_gap": 1.1,
+        "flagged": true
+      },
+      {
+        "feature": "education_num",
+        "protected_attr": "race",
+        "group_stats": {
+          "White": {
+            "mean": 10.14,
+            "std": 2.57,
+            "n": 27816
+          },
+          "Black": {
+            "mean": 9.49,
+            "std": 2.3,
+            "n": 3124
+          },
+          "Asian-Pac-Islander": {
+            "mean": 10.96,
+            "std": 2.81,
+            "n": 1039
+          },
+          "Amer-Indian-Eskimo": {
+            "mean": 9.31,
+            "std": 2.31,
+            "n": 311
+          },
+          "Other": {
+            "mean": 8.84,
+            "std": 3.23,
+            "n": 271
+          }
+        },
+        "max_mean_diff": 2.12,
+        "pooled_std": 2.64,
+        "sd_gap": 0.8
+      },
+      {
+        "feature": "capital_gain",
+        "protected_attr": "race",
+        "group_stats": {
+          "White": {
+            "mean": 1121.66,
+            "std": 7504.53,
+            "n": 27816
+          },
+          "Black": {
+            "mean": 609.94,
+            "std": 5139.65,
+            "n": 3124
+          },
+          "Asian-Pac-Islander": {
+            "mean": 1478.36,
+            "std": 9986.16,
+            "n": 1039
+          },
+          "Amer-Indian-Eskimo": {
+            "mean": 625.27,
+            "std": 2753.24,
+            "n": 311
+          },
+          "Other": {
+            "mean": 934.66,
+            "std": 8625.13,
+            "n": 271
+          }
+        },
+        "max_mean_diff": 868.42,
+        "pooled_std": 6801.74,
+        "sd_gap": 0.13
+      },
+      {
+        "feature": "capital_loss",
+        "protected_attr": "race",
+        "group_stats": {
+          "White": {
+            "mean": 90.81,
+            "std": 410.83,
+            "n": 27816
+          },
+          "Black": {
+            "mean": 60.39,
+            "std": 337.39,
+            "n": 3124
+          },
+          "Asian-Pac-Islander": {
+            "mean": 97.22,
+            "std": 423.56,
+            "n": 1039
+          },
+          "Amer-Indian-Eskimo": {
+            "mean": 34.18,
+            "std": 245.58,
+            "n": 311
+          },
+          "Other": {
+            "mean": 61.07,
+            "std": 322.45,
+            "n": 271
+          }
+        },
+        "max_mean_diff": 63.04,
+        "pooled_std": 347.96,
+        "sd_gap": 0.18
+      },
+      {
+        "feature": "hours_per_week",
+        "protected_attr": "race",
+        "group_stats": {
+          "White": {
+            "mean": 40.69,
+            "std": 12.54,
+            "n": 27816
+          },
+          "Black": {
+            "mean": 38.42,
+            "std": 10.32,
+            "n": 3124
+          },
+          "Asian-Pac-Islander": {
+            "mean": 40.13,
+            "std": 12.56,
+            "n": 1039
+          },
+          "Amer-Indian-Eskimo": {
+            "mean": 40.05,
+            "std": 11.7,
+            "n": 311
+          },
+          "Other": {
+            "mean": 39.47,
+            "std": 11.14,
+            "n": 271
+          }
+        },
+        "max_mean_diff": 2.27,
+        "pooled_std": 11.65,
+        "sd_gap": 0.19
+      },
+      {
+        "feature": "fnlwgt",
+        "protected_attr": "gender",
+        "group_stats": {
+          "Male": {
+            "mean": 191771.45,
+            "std": 106740.7,
+            "n": 21790
+          },
+          "Female": {
+            "mean": 185746.31,
+            "std": 102986.08,
+            "n": 10771
+          }
+        },
+        "max_mean_diff": 6025.14,
+        "pooled_std": 104863.39,
+        "sd_gap": 0.06
+      },
+      {
+        "feature": "education_num",
+        "protected_attr": "gender",
+        "group_stats": {
+          "Male": {
+            "mean": 10.1,
+            "std": 2.66,
+            "n": 21790
+          },
+          "Female": {
+            "mean": 10.04,
+            "std": 2.38,
+            "n": 10771
+          }
+        },
+        "max_mean_diff": 0.06,
+        "pooled_std": 2.52,
+        "sd_gap": 0.02
+      },
+      {
+        "feature": "capital_gain",
+        "protected_attr": "gender",
+        "group_stats": {
+          "Male": {
+            "mean": 1329.37,
+            "std": 8326.31,
+            "n": 21790
+          },
+          "Female": {
+            "mean": 568.41,
+            "std": 4924.26,
+            "n": 10771
+          }
+        },
+        "max_mean_diff": 760.96,
+        "pooled_std": 6625.28,
+        "sd_gap": 0.11
+      },
+      {
+        "feature": "capital_loss",
+        "protected_attr": "gender",
+        "group_stats": {
+          "Male": {
+            "mean": 100.21,
+            "std": 429.76,
+            "n": 21790
+          },
+          "Female": {
+            "mean": 61.19,
+            "std": 340.91,
+            "n": 10771
+          }
+        },
+        "max_mean_diff": 39.02,
+        "pooled_std": 385.34,
+        "sd_gap": 0.1
+      },
+      {
+        "feature": "hours_per_week",
+        "protected_attr": "gender",
+        "group_stats": {
+          "Male": {
+            "mean": 42.43,
+            "std": 12.12,
+            "n": 21790
+          },
+          "Female": {
+            "mean": 36.41,
+            "std": 11.81,
+            "n": 10771
+          }
+        },
+        "max_mean_diff": 6.02,
+        "pooled_std": 11.96,
+        "sd_gap": 0.5
       }
     ],
     "issues": [
-      "'zip_code' 2.6 SD gap across race"
+      "'hours_per_week' 1.2 SD gap across age_group",
+      "'fnlwgt' 1.1 SD gap across race"
     ]
   },
   "layer5": {
-    "status": "PASS",
-    "trends": {},
-    "issues": []
+    "status": "WARN",
+    "trends": {
+      "age_group": {
+        "attr": "age_group",
+        "current_di": 0.0446,
+        "previous_di": 0.9036,
+        "delta": -0.859,
+        "trend": "degrading \u2193"
+      },
+      "race": {
+        "attr": "race",
+        "current_di": 0.3473,
+        "previous_di": 0.6345,
+        "delta": -0.2872,
+        "trend": "degrading \u2193"
+      },
+      "gender": {
+        "attr": "gender",
+        "current_di": 0.358,
+        "previous_di": 0.8632,
+        "delta": -0.5052,
+        "trend": "degrading \u2193"
+      }
+    },
+    "issues": [
+      "DI on 'age_group' degraded 0.859",
+      "DI on 'race' degraded 0.287",
+      "DI on 'gender' degraded 0.505"
+    ]
   },
   "layer6": {
     "recommendations": [
-      "Calibrate model or adjust thresholds to equalise PPV across 'age_group' groups.",
-      "Calibrate model or adjust thresholds to equalise PPV across 'gender' groups.",
+      "Apply reweighting or SMOTE to balance data for 'age_group'.",
+      "Apply threshold adjustment to equalise positive rates across 'age_group' groups.",
+      "Retrain with equalized-odds constraints or post-hoc calibrate TPR for 'age_group'.",
+      "Apply reweighting or SMOTE to balance data for 'marital_status'.",
+      "Apply threshold adjustment to equalise positive rates across 'marital_status' groups.",
+      "Retrain with equalized-odds constraints or post-hoc calibrate TPR for 'marital_status'.",
+      "Calibrate model or adjust thresholds to equalise PPV across 'marital_status' groups.",
       "Apply reweighting or SMOTE to balance data for 'race'.",
       "Apply threshold adjustment to equalise positive rates across 'race' groups.",
       "Retrain with equalized-odds constraints or post-hoc calibrate TPR for 'race'.",
-      "Calibrate model or adjust thresholds to equalise PPV across 'race' groups.",
-      "Investigate 'zip_code' before training.",
-      "Audit collection for 'zip_code'. Consider per-group normalisation."
+      "Apply reweighting or SMOTE to balance data for 'gender'.",
+      "Apply threshold adjustment to equalise positive rates across 'gender' groups.",
+      "Retrain with equalized-odds constraints or post-hoc calibrate TPR for 'gender'.",
+      "Investigate 'relationship' before training.",
+      "Audit collection for 'hours_per_week'. Consider per-group normalisation.",
+      "Audit collection for 'fnlwgt'. Consider per-group normalisation.",
+      "Retrain \u2014 fairness degraded for 'age_group' since last run.",
+      "Retrain \u2014 fairness degraded for 'race' since last run.",
+      "Retrain \u2014 fairness degraded for 'gender' since last run."
     ],
     "explanations": [
-      "Predictive Parity Diff on 'age_group' = -0.1001  (threshold \u00b10.1).\n    Model precision differs between groups.",
-      "Predictive Parity Diff on 'gender' = -0.1118  (threshold \u00b10.1).\n    Model precision differs between groups.",
-      "Disparate Impact on 'race' = 0.63 (threshold 0.8).\n    Unprivileged group gets positive outcomes at only 63% the rate of privileged group ('White').",
-      "Demographic Parity Gap on 'race' = -0.2745  (threshold \u00b10.1).\n    Outcome rates differ significantly between groups.",
-      "Equal Opportunity Diff on 'race' = -0.3329  (threshold \u00b10.1).\n    Qualified individuals in one group are less likely to be identified correctly.",
-      "Predictive Parity Diff on 'race' = -0.2387  (threshold \u00b10.1).\n    Model precision differs between groups.",
-      "'zip_code' is a MEDIUM RISK proxy for 'race' (r=-0.6479).\n    The model can reconstruct group membership indirectly.",
-      "'zip_code' has 2.6 SD gap across 'race' groups.\n    Data collection may differ systematically between groups."
+      "Disparate Impact on 'age_group' = 0.04 (threshold 0.8).\n    Unprivileged group gets positive outcomes at only 4% the rate of privileged group ('46-55').",
+      "Demographic Parity Gap on 'age_group' = -0.3806  (threshold \u00b10.1).\n    Outcome rates differ significantly between groups.",
+      "Equal Opportunity Diff on 'age_group' = -0.3189  (threshold \u00b10.1).\n    Qualified individuals in one group are less likely to be identified correctly.",
+      "Disparate Impact on 'marital_status' = 0.10 (threshold 0.8).\n    Unprivileged group gets positive outcomes at only 10% the rate of privileged group ('Married-civ-spouse').",
+      "Demographic Parity Gap on 'marital_status' = -0.4009  (threshold \u00b10.1).\n    Outcome rates differ significantly between groups.",
+      "Equal Opportunity Diff on 'marital_status' = -0.2894  (threshold \u00b10.1).\n    Qualified individuals in one group are less likely to be identified correctly.",
+      "Predictive Parity Diff on 'marital_status' = +0.1846  (threshold \u00b10.1).\n    Model precision differs between groups.",
+      "Disparate Impact on 'race' = 0.35 (threshold 0.8).\n    Unprivileged group gets positive outcomes at only 35% the rate of privileged group ('Asian-Pac-Islander').",
+      "Demographic Parity Gap on 'race' = -0.1734  (threshold \u00b10.1).\n    Outcome rates differ significantly between groups.",
+      "Equal Opportunity Diff on 'race' = -0.1613  (threshold \u00b10.1).\n    Qualified individuals in one group are less likely to be identified correctly.",
+      "Disparate Impact on 'gender' = 0.36 (threshold 0.8).\n    Unprivileged group gets positive outcomes at only 36% the rate of privileged group ('Male').",
+      "Demographic Parity Gap on 'gender' = -0.1963  (threshold \u00b10.1).\n    Outcome rates differ significantly between groups.",
+      "Equal Opportunity Diff on 'gender' = -0.1281  (threshold \u00b10.1).\n    Qualified individuals in one group are less likely to be identified correctly.",
+      "'relationship' is a MEDIUM RISK proxy for 'gender' (r=-0.5825).\n    The model can reconstruct group membership indirectly.",
+      "'hours_per_week' has 1.2 SD gap across 'age_group' groups.\n    Data collection may differ systematically between groups.",
+      "'fnlwgt' has 1.1 SD gap across 'race' groups.\n    Data collection may differ systematically between groups.",
+      "Fairness drift on 'age_group': DI 0.9036 \u2192 0.0446.",
+      "Fairness drift on 'race': DI 0.6345 \u2192 0.3473.",
+      "Fairness drift on 'gender': DI 0.8632 \u2192 0.3580."
     ]
   },
   "bias_score": {
-    "score": 40.2,
+    "score": 53.2,
     "verdict": "MODERATE BIAS",
     "domain": "generic",
     "contributions": {
-      "DI": 4.1,
-      "DP": 10.2,
-      "proxy": 3.7,
+      "DI": 22.0,
+      "DP": 14.0,
+      "proxy": 3.5,
       "label": 0.0,
-      "dist": 16.2,
-      "intersect": 5.9
+      "dist": 6.8,
+      "intersect": 7.0
     }
   }
 }

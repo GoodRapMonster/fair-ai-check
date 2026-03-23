@@ -2474,5 +2474,422 @@
         }
       }
     }
+  },
+  {
+    "timestamp": "2026-03-22T14:11:42.621581",
+    "metrics": {
+      "age_group": {
+        "disparate_impact": {
+          "value": 0.0446,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "46-55",
+          "priv_rate": 0.3983,
+          "unpriv_rate": 0.0178
+        },
+        "demographic_parity": {
+          "value": -0.3806,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.3189,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.582,
+          "unpriv_tpr": 0.2632
+        },
+        "predictive_parity": {
+          "value": 0.0561,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.8263,
+          "unpriv_ppv": 0.8824
+        }
+      },
+      "marital_status": {
+        "disparate_impact": {
+          "value": 0.1029,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Married-civ-spouse",
+          "priv_rate": 0.4468,
+          "unpriv_rate": 0.046
+        },
+        "demographic_parity": {
+          "value": -0.4009,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.2894,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.5989,
+          "unpriv_tpr": 0.3096
+        },
+        "predictive_parity": {
+          "value": 0.1846,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7898,
+          "unpriv_ppv": 0.9744
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 0.3473,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Asian-Pac-Islander",
+          "priv_rate": 0.2656,
+          "unpriv_rate": 0.0923
+        },
+        "demographic_parity": {
+          "value": -0.1734,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.1613,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.6413,
+          "unpriv_tpr": 0.48
+        },
+        "predictive_parity": {
+          "value": -0.0708,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.7024,
+          "unpriv_ppv": 0.6316
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 0.358,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Male",
+          "priv_rate": 0.3057,
+          "unpriv_rate": 0.1095
+        },
+        "demographic_parity": {
+          "value": -0.1963,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.1281,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.5725,
+          "unpriv_tpr": 0.4444
+        },
+        "predictive_parity": {
+          "value": 0.0368,
+          "threshold": 0.1,
+          "pass": true,
+          "priv_ppv": 0.7962,
+          "unpriv_ppv": 0.8331
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T21:32:20.020323",
+    "metrics": {
+      "age_group": {
+        "disparate_impact": {
+          "value": 0.0446,
+          "ci_lower": 0.0372,
+          "ci_upper": 0.0527,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "46-55",
+          "priv_rate": 0.3983,
+          "unpriv_rate": 0.0178
+        },
+        "statistical_significance": {
+          "p_value": 0.0,
+          "significant": true
+        },
+        "equalized_odds": {
+          "value": 0.2391,
+          "tpr_diff": 0.2391,
+          "fpr_diff": 0.1781,
+          "pass": false
+        },
+        "calibration_fairness": {
+          "value": 0.3183,
+          "pass": false
+        }
+      },
+      "marital_status": {
+        "disparate_impact": {
+          "value": 0.1029,
+          "ci_lower": 0.0692,
+          "ci_upper": 0.1105,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Married-civ-spouse",
+          "priv_rate": 0.4468,
+          "unpriv_rate": 0.046
+        },
+        "statistical_significance": {
+          "p_value": 0.0,
+          "significant": true
+        },
+        "equalized_odds": {
+          "value": 0.2468,
+          "tpr_diff": 0.1973,
+          "fpr_diff": 0.2468,
+          "pass": false
+        },
+        "calibration_fairness": {
+          "value": 0.325,
+          "pass": false
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 0.3473,
+          "ci_lower": 0.2209,
+          "ci_upper": 0.4448,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Asian-Pac-Islander",
+          "priv_rate": 0.2656,
+          "unpriv_rate": 0.0923
+        },
+        "statistical_significance": {
+          "p_value": 0.0,
+          "significant": true
+        },
+        "equalized_odds": {
+          "value": 0.0569,
+          "tpr_diff": 0.0441,
+          "fpr_diff": 0.0569,
+          "pass": true
+        },
+        "calibration_fairness": {
+          "value": 0.4364,
+          "pass": false
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 0.358,
+          "ci_lower": 0.3382,
+          "ci_upper": 0.3784,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Male",
+          "priv_rate": 0.3057,
+          "unpriv_rate": 0.1095
+        },
+        "statistical_significance": {
+          "p_value": 0.0,
+          "significant": true
+        },
+        "equalized_odds": {
+          "value": 0.0912,
+          "tpr_diff": 0.0838,
+          "fpr_diff": 0.0912,
+          "pass": true
+        },
+        "calibration_fairness": {
+          "value": 0.0967,
+          "pass": true
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T21:46:20.728325",
+    "metrics": {
+      "age_group": {
+        "disparate_impact": {
+          "value": 0.0446,
+          "ci_lower": 0.0366,
+          "ci_upper": 0.0535,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "46-55",
+          "priv_rate": 0.3983,
+          "unpriv_rate": 0.0178
+        },
+        "statistical_significance": {
+          "p_value": 0.0,
+          "significant": true
+        },
+        "equalized_odds": {
+          "value": 0.2391,
+          "tpr_diff": 0.2391,
+          "fpr_diff": 0.1781,
+          "pass": false
+        },
+        "calibration_fairness": {
+          "value": 0.3183,
+          "pass": false
+        }
+      },
+      "marital_status": {
+        "disparate_impact": {
+          "value": 0.1029,
+          "ci_lower": 0.0704,
+          "ci_upper": 0.1107,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Married-civ-spouse",
+          "priv_rate": 0.4468,
+          "unpriv_rate": 0.046
+        },
+        "statistical_significance": {
+          "p_value": 0.0,
+          "significant": true
+        },
+        "equalized_odds": {
+          "value": 0.2468,
+          "tpr_diff": 0.1973,
+          "fpr_diff": 0.2468,
+          "pass": false
+        },
+        "calibration_fairness": {
+          "value": 0.325,
+          "pass": false
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 0.3473,
+          "ci_lower": 0.226,
+          "ci_upper": 0.4517,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Asian-Pac-Islander",
+          "priv_rate": 0.2656,
+          "unpriv_rate": 0.0923
+        },
+        "statistical_significance": {
+          "p_value": 0.0,
+          "significant": true
+        },
+        "equalized_odds": {
+          "value": 0.0569,
+          "tpr_diff": 0.0441,
+          "fpr_diff": 0.0569,
+          "pass": true
+        },
+        "calibration_fairness": {
+          "value": 0.4364,
+          "pass": false
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 0.358,
+          "ci_lower": 0.337,
+          "ci_upper": 0.379,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "Male",
+          "priv_rate": 0.3057,
+          "unpriv_rate": 0.1095
+        },
+        "statistical_significance": {
+          "p_value": 0.0,
+          "significant": true
+        },
+        "equalized_odds": {
+          "value": 0.0912,
+          "tpr_diff": 0.0838,
+          "fpr_diff": 0.0912,
+          "pass": true
+        },
+        "calibration_fairness": {
+          "value": 0.0967,
+          "pass": true
+        }
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T21:49:08.866042",
+    "metrics": {
+      "age": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "marital_status": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "race": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      },
+      "gender": {
+        "skipped": true,
+        "reason": "insufficient_groups"
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-22T22:06:26.498049",
+    "metrics": {
+      "sender_age_group": {
+        "disparate_impact": {
+          "value": 0.9764,
+          "ci_lower": 0.9452,
+          "ci_upper": 0.987,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "18-25",
+          "priv_rate": 0.2864,
+          "unpriv_rate": 0.2796
+        },
+        "statistical_significance": {
+          "p_value": 0.692,
+          "significant": false
+        },
+        "equalized_odds": {
+          "value": 0.0,
+          "tpr_diff": 0.0,
+          "fpr_diff": 0.0,
+          "pass": true
+        },
+        "calibration_fairness": {
+          "value": 0.0,
+          "pass": true
+        }
+      },
+      "receiver_age_group": {
+        "disparate_impact": {
+          "value": 0.9811,
+          "ci_lower": 0.9452,
+          "ci_upper": 0.9901,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "56+",
+          "priv_rate": 0.2887,
+          "unpriv_rate": 0.2833
+        },
+        "statistical_significance": {
+          "p_value": 0.47,
+          "significant": false
+        },
+        "equalized_odds": {
+          "value": 0.0,
+          "tpr_diff": 0.0,
+          "fpr_diff": 0.0,
+          "pass": true
+        },
+        "calibration_fairness": {
+          "value": 0.0,
+          "pass": true
+        }
+      }
+    }
   }
 ]
