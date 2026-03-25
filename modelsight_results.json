@@ -1,0 +1,593 @@
+{
+  "modelsight_version": "1.0.0",
+  "timestamp": "2026-03-25T23:48:46.879909",
+  "overall_verdict": "BIASED",
+  "layer1_prediction_fairness": {
+    "status": "FAIL",
+    "metrics": {
+      "age_group": {
+        "disparate_impact": {
+          "value": 0.9265,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "46-55",
+          "priv_rate": 0.8095,
+          "unpriv_rate": 0.75
+        },
+        "demographic_parity": {
+          "value": -0.0595,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": -0.1509,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.875,
+          "unpriv_tpr": 0.7241
+        },
+        "predictive_parity": {
+          "value": -0.2851,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.8235,
+          "unpriv_ppv": 0.5385
+        }
+      },
+      "gender": {
+        "disparate_impact": {
+          "value": 0.9051,
+          "threshold": 0.8,
+          "pass": true,
+          "privileged": "Male",
+          "priv_rate": 0.7841,
+          "unpriv_rate": 0.7097
+        },
+        "demographic_parity": {
+          "value": -0.0744,
+          "threshold": 0.1,
+          "pass": true
+        },
+        "equal_opportunity": {
+          "value": -0.2161,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.8525,
+          "unpriv_tpr": 0.6364
+        },
+        "predictive_parity": {
+          "value": -0.2764,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7536,
+          "unpriv_ppv": 0.4773
+        }
+      },
+      "race": {
+        "disparate_impact": {
+          "value": 0.6027,
+          "threshold": 0.8,
+          "pass": false,
+          "privileged": "White",
+          "priv_rate": 0.8732,
+          "unpriv_rate": 0.5263
+        },
+        "demographic_parity": {
+          "value": -0.3469,
+          "threshold": 0.1,
+          "pass": false
+        },
+        "equal_opportunity": {
+          "value": -0.2013,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_tpr": 0.8679,
+          "unpriv_tpr": 0.6667
+        },
+        "predictive_parity": {
+          "value": -0.1419,
+          "threshold": 0.1,
+          "pass": false,
+          "priv_ppv": 0.7419,
+          "unpriv_ppv": 0.6
+        }
+      }
+    },
+    "issues": [
+      "EOD=-0.15 on 'age_group'",
+      "PPD=-0.29 on 'age_group'",
+      "EOD=-0.22 on 'gender'",
+      "PPD=-0.28 on 'gender'",
+      "DI=0.60 on 'race'",
+      "DP=-0.35 on 'race'",
+      "EOD=-0.20 on 'race'",
+      "PPD=-0.14 on 'race'"
+    ],
+    "model_accuracy": 0.5933
+  },
+  "layer2_error_rate_disparity": {
+    "status": "FAIL",
+    "error_rates": {
+      "age_group": {
+        "26-35": {
+          "n": 52,
+          "fpr": 0.7826,
+          "fnr": 0.2759,
+          "accuracy": 0.5,
+          "tp": 21,
+          "fp": 18,
+          "tn": 5,
+          "fn": 8
+        },
+        "36-45": {
+          "n": 48,
+          "fpr": 0.7647,
+          "fnr": 0.2581,
+          "accuracy": 0.5625,
+          "tp": 23,
+          "fp": 13,
+          "tn": 4,
+          "fn": 8
+        },
+        "46-55": {
+          "n": 21,
+          "fpr": 0.6,
+          "fnr": 0.125,
+          "accuracy": 0.7619,
+          "tp": 14,
+          "fp": 3,
+          "tn": 2,
+          "fn": 2
+        },
+        "18-25": {
+          "n": 24,
+          "fpr": 0.5,
+          "fnr": 0.125,
+          "accuracy": 0.75,
+          "tp": 14,
+          "fp": 4,
+          "tn": 4,
+          "fn": 2
+        }
+      },
+      "gender": {
+        "Male": {
+          "n": 88,
+          "fpr": 0.6296,
+          "fnr": 0.1475,
+          "accuracy": 0.7045,
+          "tp": 52,
+          "fp": 17,
+          "tn": 10,
+          "fn": 9
+        },
+        "Female": {
+          "n": 62,
+          "fpr": 0.7931,
+          "fnr": 0.3636,
+          "accuracy": 0.4355,
+          "tp": 21,
+          "fp": 23,
+          "tn": 6,
+          "fn": 12
+        }
+      },
+      "race": {
+        "Hispanic": {
+          "n": 19,
+          "fpr": 0.4,
+          "fnr": 0.3333,
+          "accuracy": 0.6316,
+          "tp": 6,
+          "fp": 4,
+          "tn": 6,
+          "fn": 3
+        },
+        "Black": {
+          "n": 34,
+          "fpr": 0.6316,
+          "fnr": 0.4,
+          "accuracy": 0.4706,
+          "tp": 9,
+          "fp": 12,
+          "tn": 7,
+          "fn": 6
+        },
+        "White": {
+          "n": 71,
+          "fpr": 0.8889,
+          "fnr": 0.1321,
+          "accuracy": 0.6761,
+          "tp": 46,
+          "fp": 16,
+          "tn": 2,
+          "fn": 7
+        },
+        "Asian": {
+          "n": 26,
+          "fpr": 0.8889,
+          "fnr": 0.2941,
+          "accuracy": 0.5,
+          "tp": 12,
+          "fp": 8,
+          "tn": 1,
+          "fn": 5
+        }
+      }
+    },
+    "issues": [
+      "FPR gap=0.28 on 'age_group' (26-35 vs 18-25)",
+      "FNR gap=0.15 on 'age_group' (26-35 vs 46-55)",
+      "FPR gap=0.16 on 'gender' (Female vs Male)",
+      "FNR gap=0.22 on 'gender' (Female vs Male)",
+      "FPR gap=0.49 on 'race' (White vs Hispanic)",
+      "FNR gap=0.27 on 'race' (Black vs White)"
+    ]
+  },
+  "layer3_calibration": {
+    "status": "WARN",
+    "calibration": {
+      "age_group": {
+        "26-35": {
+          "n": 52,
+          "mean_predicted_prob": 0.6868,
+          "actual_positive_rate": 0.5577,
+          "calibration_error": 0.1291,
+          "brier_score": 0.3058
+        },
+        "36-45": {
+          "n": 48,
+          "mean_predicted_prob": 0.6616,
+          "actual_positive_rate": 0.6458,
+          "calibration_error": 0.0158,
+          "brier_score": 0.2505
+        },
+        "46-55": {
+          "n": 21,
+          "mean_predicted_prob": 0.7002,
+          "actual_positive_rate": 0.7619,
+          "calibration_error": 0.0617,
+          "brier_score": 0.1348
+        },
+        "18-25": {
+          "n": 24,
+          "mean_predicted_prob": 0.6833,
+          "actual_positive_rate": 0.6667,
+          "calibration_error": 0.0166,
+          "brier_score": 0.2076
+        }
+      },
+      "gender": {
+        "Male": {
+          "n": 88,
+          "mean_predicted_prob": 0.7188,
+          "actual_positive_rate": 0.6932,
+          "calibration_error": 0.0256,
+          "brier_score": 0.2164
+        },
+        "Female": {
+          "n": 62,
+          "mean_predicted_prob": 0.6178,
+          "actual_positive_rate": 0.5323,
+          "calibration_error": 0.0855,
+          "brier_score": 0.299
+        }
+      },
+      "race": {
+        "Hispanic": {
+          "n": 19,
+          "mean_predicted_prob": 0.537,
+          "actual_positive_rate": 0.4737,
+          "calibration_error": 0.0633,
+          "brier_score": 0.24
+        },
+        "Black": {
+          "n": 34,
+          "mean_predicted_prob": 0.5782,
+          "actual_positive_rate": 0.4412,
+          "calibration_error": 0.137,
+          "brier_score": 0.2947
+        },
+        "White": {
+          "n": 71,
+          "mean_predicted_prob": 0.757,
+          "actual_positive_rate": 0.7465,
+          "calibration_error": 0.0105,
+          "brier_score": 0.1948
+        },
+        "Asian": {
+          "n": 26,
+          "mean_predicted_prob": 0.6903,
+          "actual_positive_rate": 0.6538,
+          "calibration_error": 0.0365,
+          "brier_score": 0.3529
+        }
+      }
+    },
+    "issues": [
+      "Calibration gap=0.11 on 'age_group'",
+      "Calibration gap=0.13 on 'race'"
+    ]
+  },
+  "layer4_feature_contribution": {
+    "status": "PASS",
+    "shap_analysis": {
+      "global_ranking": [
+        {
+          "feature": "credit_score",
+          "mean_abs_shap": 0.6128
+        },
+        {
+          "feature": "race",
+          "mean_abs_shap": 0.558
+        },
+        {
+          "feature": "income",
+          "mean_abs_shap": 0.4847
+        },
+        {
+          "feature": "years_experience",
+          "mean_abs_shap": 0.4255
+        },
+        {
+          "feature": "age",
+          "mean_abs_shap": 0.2385
+        },
+        {
+          "feature": "gender",
+          "mean_abs_shap": 0.1761
+        },
+        {
+          "feature": "zip_code",
+          "mean_abs_shap": 0.1648
+        }
+      ],
+      "age_group": {
+        "groups": {
+          "26-35": {
+            "top_3_features": [
+              "credit_score",
+              "race",
+              "income"
+            ],
+            "top_3_shap": [
+              0.5988,
+              0.5066,
+              0.4413
+            ]
+          },
+          "36-45": {
+            "top_3_features": [
+              "credit_score",
+              "race",
+              "income"
+            ],
+            "top_3_shap": [
+              0.6582,
+              0.5991,
+              0.5326
+            ]
+          },
+          "46-55": {
+            "top_3_features": [
+              "race",
+              "credit_score",
+              "years_experience"
+            ],
+            "top_3_shap": [
+              0.7014,
+              0.5584,
+              0.503
+            ]
+          },
+          "18-25": {
+            "top_3_features": [
+              "credit_score",
+              "income",
+              "race"
+            ],
+            "top_3_shap": [
+              0.6023,
+              0.5461,
+              0.4614
+            ]
+          }
+        }
+      },
+      "gender": {
+        "groups": {
+          "Male": {
+            "top_3_features": [
+              "race",
+              "credit_score",
+              "income"
+            ],
+            "top_3_shap": [
+              0.594,
+              0.5688,
+              0.4861
+            ]
+          },
+          "Female": {
+            "top_3_features": [
+              "credit_score",
+              "race",
+              "income"
+            ],
+            "top_3_shap": [
+              0.6752,
+              0.5068,
+              0.4827
+            ]
+          }
+        }
+      },
+      "race": {
+        "groups": {
+          "Hispanic": {
+            "top_3_features": [
+              "race",
+              "credit_score",
+              "years_experience"
+            ],
+            "top_3_shap": [
+              0.5655,
+              0.5449,
+              0.5054
+            ]
+          },
+          "Black": {
+            "top_3_features": [
+              "credit_score",
+              "race",
+              "years_experience"
+            ],
+            "top_3_shap": [
+              0.6737,
+              0.5598,
+              0.5407
+            ]
+          },
+          "White": {
+            "top_3_features": [
+              "race",
+              "credit_score",
+              "income"
+            ],
+            "top_3_shap": [
+              0.6386,
+              0.5814,
+              0.4825
+            ]
+          },
+          "Asian": {
+            "top_3_features": [
+              "credit_score",
+              "income",
+              "years_experience"
+            ],
+            "top_3_shap": [
+              0.6684,
+              0.5479,
+              0.4431
+            ]
+          }
+        }
+      }
+    },
+    "issues": []
+  },
+  "layer5_counterfactual": {
+    "status": "FAIL",
+    "counterfactuals": {
+      "age": {
+        "flip_rates_per_value": {
+          "28": 0.06,
+          "38": 0.0333,
+          "39": 0.0533,
+          "31": 0.0667,
+          "52": 0.24,
+          "35": 0.0533,
+          "43": 0.0667,
+          "29": 0.08,
+          "19": 0.1133,
+          "48": 0.1,
+          "23": 0.0667,
+          "41": 0.0533,
+          "59": 0.2267,
+          "24": 0.0733,
+          "45": 0.2267,
+          "40": 0.0533,
+          "53": 0.1467,
+          "46": 0.2267,
+          "27": 0.0733,
+          "49": 0.1333,
+          "37": 0.04,
+          "32": 0.0733,
+          "55": 0.1467,
+          "33": 0.0733,
+          "21": 0.0733,
+          "50": 0.1333,
+          "36": 0.04,
+          "44": 0.06,
+          "51": 0.18,
+          "30": 0.0733,
+          "34": 0.0533,
+          "20": 0.12,
+          "56": 0.1467,
+          "18": 0.16,
+          "58": 0.1267,
+          "22": 0.0667,
+          "54": 0.1467,
+          "25": 0.0733,
+          "60": 0.4933,
+          "26": 0.0733,
+          "42": 0.0467
+        },
+        "average_flip_rate": 0.1109
+      },
+      "gender": {
+        "flip_rates_per_value": {
+          "1": 0.0133,
+          "0": 0.04
+        },
+        "average_flip_rate": 0.0267
+      },
+      "race": {
+        "flip_rates_per_value": {
+          "2": 0.2,
+          "1": 0.2,
+          "3": 0.16,
+          "0": 0.1933
+        },
+        "average_flip_rate": 0.1883
+      }
+    },
+    "issues": [
+      "'age' flips 11% of predictions when changed",
+      "'race' flips 19% of predictions when changed"
+    ]
+  },
+  "layer6_recommendations": {
+    "recommendations": [
+      "Retrain with equalized-odds constraints or post-hoc calibrate TPR for 'age_group'.",
+      "Calibrate predicted probabilities per group or adjust classification thresholds for 'age_group'.",
+      "Retrain with equalized-odds constraints or post-hoc calibrate TPR for 'gender'.",
+      "Calibrate predicted probabilities per group or adjust classification thresholds for 'gender'.",
+      "Retrain with fairness constraints, apply post-hoc threshold adjustment for 'race', or use reweighting during training.",
+      "Apply group-specific threshold calibration to equalise positive rates for 'race'.",
+      "Retrain with equalized-odds constraints or post-hoc calibrate TPR for 'race'.",
+      "Calibrate predicted probabilities per group or adjust classification thresholds for 'race'.",
+      "Investigate training data balance and consider cost-sensitive learning to equalize false positive rates.",
+      "Apply equalized-odds post-processing or resample training data to equalize false negative rates.",
+      "Investigate training data balance and consider cost-sensitive learning to equalize false positive rates.",
+      "Apply equalized-odds post-processing or resample training data to equalize false negative rates.",
+      "Investigate training data balance and consider cost-sensitive learning to equalize false positive rates.",
+      "Apply equalized-odds post-processing or resample training data to equalize false negative rates.",
+      "Apply Platt scaling or isotonic regression calibration per group.",
+      "Apply Platt scaling or isotonic regression calibration per group.",
+      "Remove the protected attribute from model inputs. If needed, use adversarial debiasing to ensure the model cannot reconstruct group membership.",
+      "Remove the protected attribute from model inputs. If needed, use adversarial debiasing to ensure the model cannot reconstruct group membership."
+    ],
+    "explanations": [
+      "Equal Opportunity Diff on 'age_group' = -0.1509 (threshold \u00b10.1).\n    Qualified individuals in the unprivileged group are missed more often.",
+      "Predictive Parity Diff on 'age_group' = -0.2851 (threshold \u00b10.1).\n    When the model predicts positive for the unprivileged group, it is less reliable.",
+      "Equal Opportunity Diff on 'gender' = -0.2161 (threshold \u00b10.1).\n    Qualified individuals in the unprivileged group are missed more often.",
+      "Predictive Parity Diff on 'gender' = -0.2764 (threshold \u00b10.1).\n    When the model predicts positive for the unprivileged group, it is less reliable.",
+      "Model's Disparate Impact on 'race' = 0.60 (threshold 0.8).\n    The model approves the unprivileged group at only 60% the rate of the privileged group ('White').",
+      "Demographic Parity Gap on 'race' = -0.3469 (threshold \u00b10.1).\n    The model's positive prediction rates differ significantly between groups.",
+      "Equal Opportunity Diff on 'race' = -0.2013 (threshold \u00b10.1).\n    Qualified individuals in the unprivileged group are missed more often.",
+      "Predictive Parity Diff on 'race' = -0.1419 (threshold \u00b10.1).\n    When the model predicts positive for the unprivileged group, it is less reliable.",
+      "False Positive Rate disparity: FPR gap=0.28 on 'age_group' (26-35 vs 18-25).\n    Some groups are wrongly flagged/approved at higher rates.",
+      "False Negative Rate disparity: FNR gap=0.15 on 'age_group' (26-35 vs 46-55).\n    Some groups' positive cases are being missed more often.",
+      "False Positive Rate disparity: FPR gap=0.16 on 'gender' (Female vs Male).\n    Some groups are wrongly flagged/approved at higher rates.",
+      "False Negative Rate disparity: FNR gap=0.22 on 'gender' (Female vs Male).\n    Some groups' positive cases are being missed more often.",
+      "False Positive Rate disparity: FPR gap=0.49 on 'race' (White vs Hispanic).\n    Some groups are wrongly flagged/approved at higher rates.",
+      "False Negative Rate disparity: FNR gap=0.27 on 'race' (Black vs White).\n    Some groups' positive cases are being missed more often.",
+      "Calibration issue: Calibration gap=0.11 on 'age_group'.\n    The model's confidence scores are not equally reliable across groups.",
+      "Calibration issue: Calibration gap=0.13 on 'race'.\n    The model's confidence scores are not equally reliable across groups.",
+      "Counterfactual violation: 'age' flips 11% of predictions when changed.\n    Changing the protected attribute directly changes the model's decision,\n    which is a strong indicator of direct discrimination.",
+      "Counterfactual violation: 'race' flips 19% of predictions when changed.\n    Changing the protected attribute directly changes the model's decision,\n    which is a strong indicator of direct discrimination."
+    ]
+  }
+}
