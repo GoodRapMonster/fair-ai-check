@@ -188,9 +188,10 @@ def binarise_target(df, target):
         return df, "1", True
     if nu == 2:
         vals = col.dropna().unique().tolist()
+        POSITIVE_HINTS = [">", "1", "yes", "true", "high", "approved", "pass", "positive", "accept"]
         pos = next(
             (v for v in vals if ">" in str(v) or str(v).strip().lower() in ("1", "yes", "true", "high")),
-            sorted(vals, key=str)[-1],
+            max(vals, key=lambda v: sum(h in str(v).lower() for h in POSITIVE_HINTS)),
         )
         df[target] = (col == pos).astype(int)
         return df, str(pos), False
@@ -425,11 +426,11 @@ def layer1(df, protected_attrs, target, predictions, min_size):
 
         priv_ppv = (
             float(actual[priv_mask][priv_pred_pos].mean())
-            if priv_pred_pos.sum() > 0 else 1.0
+            if priv_pred_pos.sum() > 0 else 0.0
         )
         unpriv_ppv = (
             float(actual[unpriv_mask][unpriv_pred_pos].mean())
-            if unpriv_pred_pos.sum() > 0 else 1.0
+            if unpriv_pred_pos.sum() > 0 else 0.0
         )
         ppd = unpriv_ppv - priv_ppv
         ppd = 0.0 if math.isnan(ppd) else ppd
@@ -787,44 +788,44 @@ def layer5(df, model, X, feature_cols, protected_attrs, target, binned_originals
 
         print(f"\n  {Style.BRIGHT}Flipping '{prot_feat}':{Style.RESET_ALL}")
 
-        total_flips = 0
-        total_tested = 0
+        # Individual counterfactual: for each row, flip its protected attribute
+        # to every other value and check if the prediction changes
+        flipped = 0
+        n_tested = len(X)
 
-        # For each unique value, set ALL rows to that value and see how predictions change
-        flip_rates = {}
-        for val in unique_vals:
-            X_counterfactual = X.copy()
-            X_counterfactual[prot_feat] = val
+        for idx in range(len(X)):
+            X_cf = X.iloc[[idx]].copy()
+            original_val = X_cf[prot_feat].values[0]
+            for other_val in unique_vals:
+                if other_val == original_val:
+                    continue
+                X_cf[prot_feat] = other_val
+                new_pred = model.predict(X_cf)[0]
+                if new_pred != original_preds[idx]:
+                    flipped += 1
+                    break
 
-            new_preds = model.predict(X_counterfactual)
-            flipped = (new_preds != original_preds).sum()
-            n_tested = len(new_preds)
-            flip_rate = flipped / n_tested if n_tested > 0 else 0.0
+        flip_rate = flipped / n_tested if n_tested > 0 else 0.0
+        print(f"    {flipped}/{n_tested} individuals changed prediction when '{prot_feat}' was flipped ({flip_rate:.1%})")
 
-            flip_rates[str(val)] = round(flip_rate, 4)
-            total_flips += flipped
-            total_tested += n_tested
-
-            print(f"    Set all → '{val}': {flipped}/{n_tested} predictions changed ({flip_rate:.1%})")
-
-        avg_flip = total_flips / total_tested if total_tested > 0 else 0.0
         results["counterfactuals"][attr_name] = {
-            "flip_rates_per_value": flip_rates,
-            "average_flip_rate": round(avg_flip, 4),
+            "flip_rate": round(flip_rate, 4),
+            "flipped_count": flipped,
+            "total_tested": n_tested,
         }
 
-        if avg_flip > COUNTERFACTUAL_THRESHOLD:
+        if flip_rate > COUNTERFACTUAL_THRESHOLD:
             p_fail(
-                f"Average flip rate: {avg_flip:.1%}  (> {COUNTERFACTUAL_THRESHOLD:.0%})  "
+                f"Flip rate: {flip_rate:.1%}  (> {COUNTERFACTUAL_THRESHOLD:.0%})  "
                 f"— model IS sensitive to '{prot_feat}'"
             )
             results["status"] = "FAIL"
             results["issues"].append(
-                f"'{prot_feat}' flips {avg_flip:.0%} of predictions when changed"
+                f"'{prot_feat}' flips {flip_rate:.0%} of individual predictions when changed"
             )
         else:
             p_pass(
-                f"Average flip rate: {avg_flip:.1%}  (≤ {COUNTERFACTUAL_THRESHOLD:.0%})  "
+                f"Flip rate: {flip_rate:.1%}  (≤ {COUNTERFACTUAL_THRESHOLD:.0%})  "
                 f"— model is robust to '{prot_feat}' changes"
             )
 
@@ -1103,7 +1104,7 @@ def main():
         if missing_p:
             p_warn(f"Protected columns not found: {', '.join(missing_p)}")
     else:
-        protected_attrs = detect_protected(df)
+        protected_attrs = [c for c in detect_protected(df) if c != target]
 
     if not protected_attrs:
         print(f"{Fore.RED}No protected attributes found. "
