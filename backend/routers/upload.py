@@ -4,8 +4,10 @@ import os
 import json
 import pandas as pd
 import numpy as np
-from fastapi import APIRouter, UploadFile, File, HTTPException, Form
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form, Depends
 from fastapi.responses import JSONResponse
+from models.db_models import User
+from routers.auth import get_current_user
 
 from models.schemas import UploadResponse, ProtectedAttribute
 from core.dataset_generator import generate_biased_dataset, get_builtin_dataset_info
@@ -14,6 +16,60 @@ router = APIRouter()
 
 # In-memory dataset store (use Redis/DB in production)
 _dataset_store: dict = {}
+
+
+def _load_file(filename: str, contents: bytes) -> pd.DataFrame:
+    """
+    Auto-detect file format and load into DataFrame.
+    Supports: CSV, TSV, TXT, Excel, JSON, Parquet, Feather.
+    Falls back latin-1 encoding on UTF-8 decode errors (CLI FIX).
+    """
+    ext = os.path.splitext(filename)[1].lower()
+
+    if ext in (".csv", ".txt"):
+        try:
+            df = pd.read_csv(io.BytesIO(contents), encoding="utf-8")
+        except UnicodeDecodeError:
+            df = pd.read_csv(io.BytesIO(contents), encoding="latin-1")
+
+    elif ext == ".tsv":
+        try:
+            df = pd.read_csv(io.BytesIO(contents), sep="\t", encoding="utf-8")
+        except UnicodeDecodeError:
+            df = pd.read_csv(io.BytesIO(contents), sep="\t", encoding="latin-1")
+
+    elif ext in (".xlsx", ".xls"):
+        df = pd.read_excel(io.BytesIO(contents))
+
+    elif ext == ".json":
+        try:
+            df = pd.read_json(io.BytesIO(contents))
+        except ValueError:
+            data = json.loads(contents)
+            df = pd.json_normalize(data)
+
+    elif ext == ".parquet":
+        df = pd.read_parquet(io.BytesIO(contents))
+
+    elif ext == ".feather":
+        df = pd.read_feather(io.BytesIO(contents))
+
+    else:
+        raise ValueError(
+            f"Unsupported format: '{ext}'. "
+            "Supported: .csv .tsv .txt .xlsx .xls .json .parquet .feather"
+        )
+
+    # Auto-coerce object columns that should be numeric (CLI FIX-7)
+    for col in df.columns:
+        if df[col].dtype == object:
+            try:
+                df[col] = pd.to_numeric(df[col], errors="raise")
+            except Exception:
+                pass
+
+    return df
+
 
 PROTECTED_KEYWORDS = {
     "gender": 0.98, "sex": 0.96, "race": 0.97, "ethnicity": 0.95,
@@ -40,22 +96,18 @@ def _detect_protected_attrs(columns: list) -> list:
 
 
 @router.post("/upload", response_model=UploadResponse)
-async def upload_dataset(file: UploadFile = File(...)):
-    """Upload a CSV, Excel, or JSON dataset for bias analysis."""
+async def upload_dataset(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload a CSV, TSV, Excel, JSON, Parquet, or Feather dataset for bias analysis."""
     dataset_id = str(uuid.uuid4())
 
     try:
         contents = await file.read()
         filename = file.filename or "dataset.csv"
 
-        if filename.endswith(".csv"):
-            df = pd.read_csv(io.BytesIO(contents))
-        elif filename.endswith((".xlsx", ".xls")):
-            df = pd.read_excel(io.BytesIO(contents))
-        elif filename.endswith(".json"):
-            df = pd.read_json(io.BytesIO(contents))
-        else:
-            raise HTTPException(status_code=400, detail="Unsupported file format. Use CSV, Excel, or JSON.")
+        df = _load_file(filename, contents)
 
         if len(df) < 20:
             raise HTTPException(status_code=400, detail="Dataset too small. Minimum 20 rows required.")
@@ -80,6 +132,8 @@ async def upload_dataset(file: UploadFile = File(...)):
 
     except HTTPException:
         raise
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
 
@@ -97,17 +151,39 @@ async def load_builtin_dataset(dataset_id_name: str = Form(...)):
 
     try:
         if dataset_id_name == "compas":
-            from aif360.datasets import CompasDataset
-            aif_ds = CompasDataset()
-            df = aif_ds.convert_to_dataframe()[0]
+            # ProPublica COMPAS two-year recidivism dataset
+            _URL = (
+                "https://raw.githubusercontent.com/propublica/"
+                "compas-analysis/master/compas-scores-two-years.csv"
+            )
+            raw = pd.read_csv(_URL)
+            _keep = [
+                "sex", "age", "race", "juv_fel_count", "juv_misd_count",
+                "juv_other_count", "priors_count", "c_charge_degree", "two_year_recid",
+            ]
+            df = raw[[c for c in _keep if c in raw.columns]].dropna()
+
         elif dataset_id_name == "adult":
-            from aif360.datasets import AdultDataset
-            aif_ds = AdultDataset()
-            df = aif_ds.convert_to_dataframe()[0]
+            # UCI Adult Income dataset (predict >50K salary)
+            _ADULT_COLS = [
+                "age", "workclass", "fnlwgt", "education", "education_num",
+                "marital_status", "occupation", "relationship", "race", "sex",
+                "capital_gain", "capital_loss", "hours_per_week", "native_country", "income",
+            ]
+            df = pd.read_csv(
+                "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data",
+                names=_ADULT_COLS, na_values=" ?", skipinitialspace=True,
+            ).dropna()
+            df["income"] = (df["income"].str.strip() == ">50K").astype(int)
+
         elif dataset_id_name == "german":
-            from aif360.datasets import GermanDataset
-            aif_ds = GermanDataset()
-            df = aif_ds.convert_to_dataframe()[0]
+            # UCI German Credit dataset (1 = good credit, 2 = bad credit)
+            _GER_COLS = [f"attr_{i}" for i in range(1, 21)] + ["credit_risk"]
+            df = pd.read_csv(
+                "https://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data",
+                sep=" ", names=_GER_COLS, header=None,
+            )
+            df["credit_risk"] = (df["credit_risk"] == 1).astype(int)
         elif dataset_id_name == "synthetic_hiring":
             df = generate_biased_dataset(1000, bias_level=0.65, domain="hiring")
         elif dataset_id_name == "synthetic_lending":

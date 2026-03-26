@@ -61,6 +61,12 @@ class FairnessMetric(BaseModel):
     status: str  # PASS / FAIL / BORDERLINE
     description: str
     math_explanation: str
+    
+    # Statistical significance fields
+    ci_lower: Optional[float] = None
+    ci_upper: Optional[float] = None
+    p_value: Optional[float] = None
+    is_significant: Optional[bool] = None
 
 
 class ProxyResult(BaseModel):
@@ -91,6 +97,28 @@ class FingerprintData(BaseModel):
     spread: float
 
 
+class BiasScoreBreakdown(BaseModel):
+    """Adaptive, domain-weighted bias score (0–100, higher = more biased)."""
+    score: float
+    verdict: str          # CLEAN / MINOR ISSUES / MODERATE BIAS / SIGNIFICANT BIAS / SEVERELY BIASED
+    domain: str
+    weights: Dict[str, float]          # renormalized per-component weights used
+    severities: Dict[str, float]       # raw severity 0–100 per component
+    contributions: Dict[str, float]    # weight × severity per component
+    primary_driver: str                # component with biggest contribution
+    quick_win: Optional[List[Any]] = None   # [contribution, component, score_after_fix]
+
+
+class DriftResult(BaseModel):
+    """Fairness drift result comparing DI against previous run."""
+    attr: str
+    current_di: float
+    previous_di: float
+    delta: float
+    trend: str    # improving ↑ / degrading ↓ / stable ─
+    alert: bool   # True when delta < -0.05
+
+
 class AnalyzeResponse(BaseModel):
     analysis_id: str
     dataset_id: str
@@ -103,6 +131,8 @@ class AnalyzeResponse(BaseModel):
     shap_values: Dict[str, float]
     impact_estimate: Dict[str, Any]
     proxy_heatmap: Dict[str, Dict[str, float]]
+    bias_score_breakdown: Optional[BiasScoreBreakdown] = None
+    drift_results: List[DriftResult] = []
 
 
 class NarrateRequest(BaseModel):
@@ -155,6 +185,8 @@ class MitigationTechnique(str, Enum):
     disparate_impact_remover = "disparate_impact_remover"
     threshold_adjustment = "threshold_adjustment"
     adversarial_debiasing = "adversarial_debiasing"
+    fairlearn_threshold = "fairlearn_threshold"
+    fairlearn_eg = "fairlearn_eg"
 
 
 class MitigateRequest(BaseModel):

@@ -1,7 +1,9 @@
 import uuid
 import io
 from datetime import datetime
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from models.db_models import User
+from routers.auth import get_current_user
 from fastapi.responses import StreamingResponse
 
 from models.schemas import ReportRequest, MonitorBatchItem, MonitorResponse
@@ -13,7 +15,10 @@ be = BiasEngine()
 
 
 @router.post("/report/generate")
-async def generate_report(request: ReportRequest):
+async def generate_report(
+    request: ReportRequest,
+    current_user: User = Depends(get_current_user)
+):
     """Generate a full PDF compliance report."""
     analysis = get_analysis(request.analysis_id)
 
@@ -219,7 +224,10 @@ async def generate_report(request: ReportRequest):
 
 
 @router.post("/monitor/batch", response_model=MonitorResponse)
-async def analyze_batches(batches: list):
+async def analyze_batches(
+    batches: list,
+    current_user: User = Depends(get_current_user)
+):
     """Analyze multiple dataset batches for drift monitoring."""
     if not batches:
         raise HTTPException(status_code=400, detail="No batches provided.")

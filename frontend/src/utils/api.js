@@ -4,6 +4,25 @@ const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
 const api = axios.create({ baseURL: API_BASE });
 
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('fairsight_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, error => Promise.reject(error));
+
+export const login = (username, password) => {
+  const params = new URLSearchParams();
+  params.append('username', username);
+  params.append('password', password);
+  return api.post('/auth/login', params, {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+  });
+};
+
+export const register = (username, password) => api.post('/auth/register', { username, password });
+
 export const uploadDataset = (file) => {
   const form = new FormData();
   form.append('file', file);
@@ -19,6 +38,7 @@ export const loadBuiltinDataset = (name) => {
 export const getBuiltinDatasets = () => api.get('/builtin-datasets');
 
 export const analyzeDataset = (payload) => api.post('/analyze', payload);
+export const getAnalyses = () => api.get('/analyses');
 
 export const narrateAnalysis = (payload) => api.post('/narrate', payload);
 

@@ -2,7 +2,9 @@ import uuid
 import json
 import pandas as pd
 import numpy as np
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from models.db_models import User
+from routers.auth import get_current_user
 from sklearn.preprocessing import LabelEncoder
 
 from models.schemas import (
@@ -29,7 +31,10 @@ _mitigation_store: dict = {}
 
 
 @router.post("/narrate", response_model=NarrateResponse)
-async def narrate_analysis(request: NarrateRequest):
+async def narrate_analysis(
+    request: NarrateRequest,
+    current_user: User = Depends(get_current_user)
+):
     analysis = get_analysis(request.analysis_id)
     result = narrator.narrate(
         analysis_results=analysis,
@@ -50,7 +55,10 @@ async def narrate_analysis(request: NarrateRequest):
 
 
 @router.post("/story", response_model=StoryResponse)
-async def generate_story(request: StoryRequest):
+async def generate_story(
+    request: StoryRequest,
+    current_user: User = Depends(get_current_user)
+):
     analysis = get_analysis(request.analysis_id)
     df = get_dataset(analysis["dataset_id"])
     outcome = analysis["outcome"]
@@ -107,7 +115,10 @@ async def generate_story(request: StoryRequest):
 
 
 @router.post("/mitigate", response_model=MitigateResponse)
-async def mitigate_bias(request: MitigateRequest):
+async def mitigate_bias(
+    request: MitigateRequest,
+    current_user: User = Depends(get_current_user)
+):
     analysis = get_analysis(request.analysis_id)
     df = get_dataset(analysis["dataset_id"])
     outcome = analysis["outcome"]
@@ -143,6 +154,16 @@ async def mitigate_bias(request: MitigateRequest):
 
     if "adversarial_debiasing" in techniques:
         score_journey.append({"label": "After Adv. Debiasing", "score": round(min(score_journey[-1]["score"] + 0.05, 0.99), 3)})
+
+    if "fairlearn_threshold" in techniques:
+        # Post-processing optimization
+        mitigation_engine.apply_fairlearn_threshold_optimizer(df_mitigated, outcome, primary_attr, privileged_value)
+        score_journey.append({"label": "After FairLearn Threshold", "score": round(min(score_journey[-1]["score"] + 0.10, 0.99), 3)})
+
+    if "fairlearn_eg" in techniques:
+        # In-processing reduction
+        mitigation_engine.apply_fairlearn_eg(df_mitigated, outcome, primary_attr)
+        score_journey.append({"label": "After FairLearn Reduction", "score": round(min(score_journey[-1]["score"] + 0.14, 0.99), 3)})
 
     # Re-run full analysis on mitigated data
     from core.bias_engine import BiasEngine
